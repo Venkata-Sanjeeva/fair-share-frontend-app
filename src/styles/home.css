@@ -1,0 +1,49 @@
+/* home.css */
+:root {
+    --primary-grad: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --glass-bg: rgba(255, 255, 255, 0.9);
+    --fs-primary: #007bff;
+    /* Deep Blue for Trust */
+    --fs-secondary: #6c757d;
+    --fs-success: #28a745;
+    /* Green for "Settled" */
+    --fs-bg: #f8f9fa;
+}
+
+body {
+  background-color: var(--fs-bg);
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+
+.hero-gradient {
+    background: var(--primary-grad);
+    color: white;
+    padding: 100px 0;
+    border-radius: 0 0 50px 50px;
+    margin-bottom: -50px;
+}
+
+.auth-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+}
+
+.nav-custom {
+    background: rgba(0, 0, 0, 0.8) !important;
+    backdrop-filter: blur(5px);
+}
+
+.btn-primary-grad {
+    background: var(--primary-grad);
+    border: none;
+    transition: transform 0.2s;
+}
+
+.btn-primary-grad:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(118, 75, 162, 0.4);
+}

@@ -1,17 +1,47 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
+import FairShareHome from './components/FairShare';
+import LoginPage from './components/pages/LoginPage';
+import RegisterPage from './components/pages/RegisterPage';
+import ForgotPage from './components/pages/ForgotPage';
+import ProtectedRoute from './components/utils/ProtectedRoute';
+
+const routes = createBrowserRouter([
+  {
+    path: '/',
+    element: <Navigate to="/home" replace />, // Default root redirect
+  },
+  {
+    path: '/home',
+    element: <FairShareHome />, // This handles landing + view switching for now
+  },
+  {
+    path: '/login',
+    element: <LoginPage />,
+  },
+  {
+    path: '/register',
+    element: <RegisterPage />,
+  },
+  {
+    path: '/forgot-password',
+    element: <ForgotPage />,
+  },
+  {
+    path: '/dashboard',
+    element: (
+      <ProtectedRoute>
+        <FairShareHome /> {/* When logged in, FairShareHome shows LoggedInDashboard */}
+      </ProtectedRoute>
+    ),
+  },
+]);
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
+    <RouterProvider router={routes} />
   </React.StrictMode>
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
