@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import ButtonLoader from '../loaders/ButtonLoader';
 import useAlert from '../utils/ShowAlert'; // Using your hook
 import axios from 'axios';
+import { validateEmail } from '../utils/Validations';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -16,10 +17,9 @@ const ForgotPage = () => {
 
     const handleReset = async (e) => {
         e.preventDefault();
-
-        if (!email) {
-            return showAlert("Please enter your email address.", "warning");
-        }
+        const email = e.target.elements.email.value;
+        const emailError = validateEmail(email);
+        if (emailError) return showAlert(emailError, "warning");
 
         setIsSubmitting(true);
 

@@ -18,25 +18,25 @@ const Dashboard = () => {
     const userData = localStorage.getItem('fs_user');
     const token = userData ? JSON.parse(userData).token : null;
 
-    const fetchTrips = async () => {
-        try {
-            const response = await axios.get(`${API_URL}/trip/my-trips`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            setTrips(response.data?.data);
-        } catch (err) {
-            console.error("Failed to load trips", err);
-        } finally {
-            setTimeout(() => setIsLoading(false), 1000); // Small delay for better UX
-        }
-    };
-
     useEffect(() => {
         // 2. Handle the "No User" logic inside the effect
         if (!userData) {
             navigate('/login');
             return;
         }
+
+        const fetchTrips = async () => {
+            try {
+                const response = await axios.get(`${API_URL}/trip/my-trips`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                setTrips(response.data?.data);
+            } catch (err) {
+                console.error("Failed to load trips", err);
+            } finally {
+                setTimeout(() => setIsLoading(false), 1000); // Small delay for better UX
+            }
+        };
 
         fetchTrips();
     }, [token, navigate, userData]); // Added dependencies for safety
@@ -46,7 +46,7 @@ const Dashboard = () => {
 
     const handleCreateTrip = (newTrip) => {
         setTrips([newTrip, ...trips]);
-        fetchTrips();
+        window.location.reload(); // Refresh to show the new trip in the list
     };
 
     return (
@@ -65,7 +65,7 @@ const Dashboard = () => {
                 </Button>
             </div>
 
-            <Row className="mt-4">
+            <Row className="mt-4" style={{ overflowY: 'auto', maxHeight: '56vh' }}>
                 {isLoading ? (
                     <Col className="text-center py-5">
                         {/* Using your custom loader component here */}

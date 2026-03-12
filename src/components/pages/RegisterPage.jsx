@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import ButtonLoader from '../loaders/ButtonLoader';
 import axios from 'axios';
 import useAlert from '../utils/ShowAlert';
+import { validateEmail, validatePassword, validateFullName } from '../utils/Validations';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -14,20 +15,20 @@ const RegisterPage = () => {
 
     const handleRegister = async (e) => {
         e.preventDefault();
-
         const name = e.target.elements.fullName.value;
         const email = e.target.elements.email.value;
         const password = e.target.elements.password.value;
         const confirmPassword = e.target.elements.confirmPassword.value;
 
-        // 1. Basic Validation
-        if (password !== confirmPassword) {
-            return showAlert("Passwords do not match!", "danger");
-        }
+        // 1. Run Validations
+        const nameError = validateFullName(name);
+        const emailError = validateEmail(email);
+        const passError = validatePassword(password);
 
-        if (password.length < 6) {
-            return showAlert("Password must be at least 6 characters.", "warning");
-        }
+        if (nameError) return showAlert(nameError, "warning");
+        if (emailError) return showAlert(emailError, "warning");
+        if (passError) return showAlert(passError, "warning");
+        if (password !== confirmPassword) return showAlert("Passwords do not match!", "danger");
 
         setIsSubmitting(true);
 

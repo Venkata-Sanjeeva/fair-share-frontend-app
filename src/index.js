@@ -7,6 +7,7 @@ import LoginPage from './components/pages/LoginPage';
 import RegisterPage from './components/pages/RegisterPage';
 import ForgotPage from './components/pages/ForgotPage';
 import ProtectedRoute from './components/utils/ProtectedRoute';
+import TripDetailsPage from './components/TripDetailsPage';
 
 const routes = createBrowserRouter([
   {
@@ -36,6 +37,10 @@ const routes = createBrowserRouter([
         <FairShareHome /> {/* When logged in, FairShareHome shows LoggedInDashboard */}
       </ProtectedRoute>
     ),
+  },
+  {
+    path: '/trip/:tripUID',
+    element: <TripDetailsPage />,
   },
 ]);
 

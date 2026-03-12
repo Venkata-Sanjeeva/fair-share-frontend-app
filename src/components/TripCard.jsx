@@ -5,6 +5,11 @@ import { useNavigate } from 'react-router-dom';
 const TripCard = ({ trip }) => {
     const navigate = useNavigate();
 
+    const handleViewDetails = () => {
+        // Navigate to /trip/trip_12345
+        navigate(`/trip/${trip.tripUID}`);
+    };
+
     return (
         <Card className="auth-card p-0 overflow-hidden mb-4 border-0 shadow-sm h-100">
             {/* Header with status */}
@@ -37,7 +42,7 @@ const TripCard = ({ trip }) => {
                 <Button
                     variant="outline-primary"
                     className="w-100 rounded-pill fw-bold py-2"
-                    onClick={() => navigate(`/trip/${trip.id}`)}
+                    onClick={handleViewDetails}
                 >
                     View Details
                 </Button>

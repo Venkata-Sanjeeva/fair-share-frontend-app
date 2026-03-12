@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import ButtonLoader from '../loaders/ButtonLoader';
 import axios from 'axios';
 import useAlert from '../utils/ShowAlert';
+import { validateEmail } from '../utils/Validations';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -14,15 +15,12 @@ const LoginPage = () => {
 
     const handleLogin = async (e) => {
         e.preventDefault();
-        
-        // Better way to get values than using index
         const email = e.target.elements.email.value;
         const password = e.target.elements.password.value;
 
-        if (!email || !password) {
-            showAlert("Please fill in all fields.", "danger");
-            return;
-        }
+        const emailError = validateEmail(email);
+        if (emailError) return showAlert(emailError, "warning");
+        if (!password) return showAlert("Please enter your password.", "warning");
 
         setIsSubmitting(true);
 
@@ -31,13 +29,13 @@ const LoginPage = () => {
             const data = response?.data?.data;
 
             if (data?.token) {
-                localStorage.setItem('fs_user', JSON.stringify({ 
-                    userUID: data.userUID, 
-                    email: data.email, 
-                    token: data.token, 
-                    role: data.role 
+                localStorage.setItem('fs_user', JSON.stringify({
+                    userUID: data.userUID,
+                    email: data.email,
+                    token: data.token,
+                    role: data.role
                 }));
-                
+
                 showAlert("Login successful!", 'success');
                 // Give the user a moment to see the success alert before navigating
                 setTimeout(() => navigate('/dashboard'), 1500);
@@ -89,7 +87,7 @@ const LoginPage = () => {
                             {isSubmitting ? <ButtonLoader message="Logging in..." /> : "Login"}
                         </Button>
                     </Form>
-                    
+
                     {/* ... Footer links ... */}
                     <div className="text-center mt-3 small">
                         <p onClick={() => navigate('/forgot-password')} className="text-primary cursor-pointer" style={{ cursor: 'pointer' }}>Forgot Password?</p>
