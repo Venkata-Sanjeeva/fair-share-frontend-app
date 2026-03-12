@@ -15,8 +15,20 @@ const TripDetailsPage = () => {
     const [expenses, setExpenses] = useState([]); // Add this state
 
     // Add a function to handle new expenses
-    const handleExpenseAdded = (newExpense) => {
-        setExpenses([newExpense, ...expenses]);
+    const handleExpenseAdded = (updatedExpense) => {
+        setExpenses(prevExpenses => {
+            const index = prevExpenses.findIndex(e => e.expenseUID === updatedExpense.expenseUID);
+
+            if (index > -1) {
+                // Update: replace the old expense with the new one
+                const newExpenses = [...prevExpenses];
+                newExpenses[index] = updatedExpense;
+                return newExpenses;
+            } else {
+                // Add: put the new expense at the top
+                return [updatedExpense, ...prevExpenses];
+            }
+        });
     };
 
     // 1. Initialize state properly to avoid infinite loops
@@ -27,6 +39,13 @@ const TripDetailsPage = () => {
 
     const [trip, setTrip] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+
+    const [editingExpense, setEditingExpense] = useState(null);
+
+    const handleEditClick = (expense) => {
+        setEditingExpense(expense); // Set the expense data to be edited
+        setShowExpenseModal(true);   // Open the same modal
+    };
 
     const handleLogout = () => {
         localStorage.removeItem('fs_user');
@@ -48,8 +67,16 @@ const TripDetailsPage = () => {
                 });
 
                 // Using optional chaining to safely access data
-                const data = response.data?.data || response.data;
-                setTrip(data);
+                const tripData = response.data?.data || response.data;
+
+                const expensesResponse = await axios.get(`${API_URL}/expenses/fetch/${tripUID}`, {
+                    headers: { Authorization: `Bearer ${user.token}` }
+                });
+                const expensesData = expensesResponse.data?.data || expensesResponse.data;
+
+                setTrip(tripData);
+                setExpenses(expensesData);
+
             } catch (err) {
                 console.error("Error fetching trip:", err);
             } finally {
@@ -115,10 +142,54 @@ const TripDetailsPage = () => {
                     <Row>
                         <Col lg={8}>
                             <h5 className="fw-bold mb-3">Expenses</h5>
-                            {/* Expense list will go here later */}
-                            <div className="p-5 bg-light text-center rounded-3">
-                                <p className="text-muted">No expenses recorded yet.</p>
-                            </div>
+                            {expenses.length === 0 ? (
+                                <div className="p-5 bg-light text-center rounded-3 border">
+                                    <p className="text-muted">No expenses recorded yet.</p>
+                                </div>
+                            ) : (
+                                expenses.map((exp) => (
+                                    <Card key={exp.expenseUID} className="mb-3 border-0 shadow-sm rounded-3 hover-shadow transition-all">
+                                        <Card.Body className="p-4">
+                                            <Row className="align-items-center">
+                                                <Col xs={7}>
+                                                    <h6 className="fw-bold mb-0 text-dark">{exp.description}</h6>
+                                                    <small className="text-muted">
+                                                        Paid by <span className="text-primary fw-semibold">{exp.paidBy}</span> • {new Date(exp.expenseDate).toLocaleDateString()}
+                                                    </small>
+                                                </Col>
+                                                <Col xs={4} className="text-end">
+                                                    <h6 className="text-success fw-bold mb-0">₹{exp.totalAmount.toFixed(2)}</h6>
+                                                    <div className="d-flex justify-content-end gap-1 mt-1">
+                                                        {/* Visual indicator of people involved */}
+                                                        {exp.splits.map((s, i) => (
+                                                            <div
+                                                                key={i}
+                                                                className="bg-light border rounded-circle d-flex align-items-center justify-content-center"
+                                                                style={{ width: '20px', height: '20px', fontSize: '10px' }}
+                                                                title={s.participantName}
+                                                            >
+                                                                {s.participantName.charAt(0)}
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </Col>
+                                                <Col xs={1} className="text-end p-0">
+                                                    {/* The Edit Button */}
+                                                    <Button
+                                                        variant="outline-primary"
+                                                        size="sm"
+                                                        className="rounded-pill px-3 py-1 fw-bold edit-btn-hover"
+                                                        style={{ fontSize: '0.7rem', borderWidth: '1.5px' }}
+                                                        onClick={() => handleEditClick(exp)}
+                                                    >
+                                                        <i className="bi bi-pencil-fill me-1"></i> EDIT
+                                                    </Button>
+                                                </Col>
+                                            </Row>
+                                        </Card.Body>
+                                    </Card>
+                                ))
+                            )}
                         </Col>
                         <Col lg={4}>
                             <h5 className="fw-bold mb-3">Members</h5>
@@ -131,12 +202,17 @@ const TripDetailsPage = () => {
                             </div>
                         </Col>
                     </Row>
+
                     <AddExpenseModal
                         show={showExpenseModal}
-                        onHide={() => setShowExpenseModal(false)}
+                        onHide={() => {
+                            setShowExpenseModal(false);
+                            setEditingExpense(null); // Clear editing state on close
+                        }}
                         trip={trip}
                         token={user.token}
                         onExpenseAdded={handleExpenseAdded}
+                        editData={editingExpense} // Pass the existing data
                     />
                 </Container>
             }

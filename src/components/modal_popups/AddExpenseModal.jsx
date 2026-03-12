@@ -4,11 +4,13 @@ import axios from 'axios';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
-const AddExpenseModal = ({ show, onHide, trip, token, onExpenseAdded }) => {
+const AddExpenseModal = ({ show, onHide, trip, token, onExpenseAdded, editData }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const [involvedMembers, setInvolvedMembers] = useState(trip.participants);
-    const [amount, setAmount] = useState(0);
+    const [amount, setAmount] = useState(editData?.totalAmount || 0);
+    const [involvedMembers, setInvolvedMembers] = useState(
+        editData ? editData.splits.map(s => s.participantName) : trip.participants
+    );
 
     const handleCheckboxChange = (member) => {
         setInvolvedMembers(prev =>
@@ -22,21 +24,31 @@ const AddExpenseModal = ({ show, onHide, trip, token, onExpenseAdded }) => {
         e.preventDefault();
         const formData = e.target.elements;
 
+        const involvedParticipants = involvedMembers.length > 0 ? involvedMembers : trip.participants;
+
         const expenseData = {
-            description: formData.description.value,
-            amount: parseFloat(formData.amount.value),
-            paidBy: formData.paidBy.value,
             tripUID: trip.tripUID,
-            // You can add logic here for custom splits later
+            description: formData.description.value,
+            totalAmount: parseFloat(formData.amount.value),
+            paidByParticipantName: formData.paidBy.value,
+            involvedParticipantNames: involvedParticipants
         };
 
         setIsSubmitting(true);
         try {
-            const response = await axios.post(`${API_URL}/expense/create`, expenseData, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            const data = response.data?.data || response.data;
-            onExpenseAdded(data);
+            let response;
+            if (editData) {
+                // Update existing expense
+                response = await axios.put(`${API_URL}/expenses/update/${editData.expenseUID}`, expenseData, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+            } else {
+                // Create new expense
+                response = await axios.post(`${API_URL}/expenses/create`, expenseData, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+            }
+            onExpenseAdded(response.data); // This updates the list in parent
             onHide();
         } catch (err) {
             console.error("Failed to add expense", err);
@@ -48,13 +60,19 @@ const AddExpenseModal = ({ show, onHide, trip, token, onExpenseAdded }) => {
     return (
         <Modal show={show} onHide={onHide} centered>
             <Modal.Header closeButton>
-                <Modal.Title className="fw-bold">Add New Expense</Modal.Title>
+                <Modal.Title className="fw-bold">
+                    {editData ? "Edit Expense" : "Add New Expense"}
+                </Modal.Title>
             </Modal.Header>
             <Form onSubmit={handleSubmit}>
                 <Modal.Body>
                     <Form.Group className="mb-3">
                         <Form.Label>Description</Form.Label>
-                        <Form.Control name="description" placeholder="e.g. Dinner at Promenade" required />
+                        <Form.Control
+                            name="description"
+                            defaultValue={editData?.description || ''}
+                            placeholder="e.g. Dinner at Promenade"
+                            required />
                     </Form.Group>
 
                     <Form.Group className="mb-3">
