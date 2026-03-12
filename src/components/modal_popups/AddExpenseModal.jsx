@@ -39,7 +39,7 @@ const AddExpenseModal = ({ show, onHide, trip, token, onExpenseAdded, editData }
             let response;
             if (editData) {
                 // Update existing expense
-                response = await axios.put(`${API_URL}/expenses/update/${editData.expenseUID}`, expenseData, {
+                response = await axios.put(`${API_URL}/expenses/update/${trip.tripUID}/${editData.expenseUID}`, expenseData, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
             } else {
@@ -48,7 +48,7 @@ const AddExpenseModal = ({ show, onHide, trip, token, onExpenseAdded, editData }
                     headers: { Authorization: `Bearer ${token}` }
                 });
             }
-            onExpenseAdded(response.data); // This updates the list in parent
+            onExpenseAdded(response.data?.data); // This updates the list in parent
             onHide();
         } catch (err) {
             console.error("Failed to add expense", err);
