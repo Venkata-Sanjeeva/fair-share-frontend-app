@@ -26,3 +26,8 @@
     transform: scale(1.1);
     transition: all 0.2s ease;
 }
+
+/* This targets the specific toggle and hides the auto-generated arrow */
+.no-caret::after {
+    display: none !important;
+}

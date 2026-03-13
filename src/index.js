@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './index.css';
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import FairShareHome from './components/FairShare';
 import LoginPage from './components/pages/LoginPage';
