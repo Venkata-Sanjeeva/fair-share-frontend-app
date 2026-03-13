@@ -8,6 +8,51 @@
     cursor: default;
 }
 
+/* Container for the three dots to give it a nice hover effect */
+.action-dot-wrapper {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    background-color: #f8f9fa;
+}
+
+.action-dot-wrapper:hover {
+    background-color: #e9ecef;
+    color: #00d2ff;
+}
+
+/* The Slide-In Animation */
+.animate-slide-in {
+    display: block;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-top: 8px !important; /* This controls the gap precisely */
+}
+
+/* Show state triggered by Bootstrap's 'show' class */
+.dropdown-menu.show.animate-slide-in {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* Style tweaks for items to make them look more premium */
+.dropdown-item:active {
+    background-color: #f8f9fa;
+    color: inherit;
+}
+
+.dropdown-item:hover {
+    background-color: rgba(0, 210, 255, 0.05);
+    color: #00d2ff;
+}
+
 /* Custom Scrollbar for the expense list */
 .expense-list-container::-webkit-scrollbar {
     width: 4px;

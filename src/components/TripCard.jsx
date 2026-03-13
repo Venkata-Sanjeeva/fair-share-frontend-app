@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card, Button, Badge, Dropdown } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 
@@ -16,7 +15,7 @@ const TripCard = ({ trip, onStatusUpdate }) => {
     const theme = statusTheme[currentStatus] || statusTheme.ACTIVE;
 
     return (
-        <Card className="h-100 border-0 shadow-sm position-relative overflow-hidden"
+        <Card className="h-100 border-0 shadow-sm position-relative overflow-hidden card-hover-effect"
             style={{ borderRadius: '15px', background: '#fff' }}>
 
             {/* Left Status Accent Strip */}
@@ -54,13 +53,13 @@ const TripCard = ({ trip, onStatusUpdate }) => {
                             </div>
                         </Dropdown.Toggle>
 
-                        <Dropdown.Menu className="shadow border-0 rounded-3 mt-2">
-                            <Dropdown.Header className="small text-uppercase fw-bold">Trip Status</Dropdown.Header>
-                            <Dropdown.Item className="small py-2" onClick={() => onStatusUpdate(trip.tripUID, 'ACTIVE')}>
-                                <i className="bi bi-circle-fill me-2 text-info" style={{ fontSize: '8px' }}></i> Mark as Active
+                        <Dropdown.Menu className="shadow border-0 rounded-4 animate-slide-in">
+                            <Dropdown.Header className="small text-uppercase fw-bold pb-2">Trip Status</Dropdown.Header>
+                            <Dropdown.Item className="small py-2 rounded-3 mx-1" onClick={() => onStatusUpdate(trip.tripUID, 'ACTIVE')}>
+                                <i className="bi bi-play-circle-fill me-2 text-info"></i> Mark as Active
                             </Dropdown.Item>
-                            <Dropdown.Item className="small py-2" onClick={() => onStatusUpdate(trip.tripUID, 'COMPLETED')}>
-                                <i className="bi bi-circle-fill me-2 text-success" style={{ fontSize: '8px' }}></i> Mark as Completed
+                            <Dropdown.Item className="small py-2 rounded-3 mx-1" onClick={() => onStatusUpdate(trip.tripUID, 'COMPLETED')}>
+                                <i className="bi bi-check-circle-fill me-2 text-success"></i> Mark as Completed
                             </Dropdown.Item>
                         </Dropdown.Menu>
                     </Dropdown>
