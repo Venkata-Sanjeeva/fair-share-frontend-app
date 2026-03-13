@@ -223,10 +223,6 @@ const TripDetailsPage = () => {
                                                                     </span>
                                                                 </div>
                                                                 <div className="d-flex align-items-center text-muted" style={{ fontSize: '0.75rem' }}>
-                                                                    <div className="rounded-circle bg-light d-flex align-items-center justify-content-center me-1"
-                                                                        style={{ width: '18px', height: '18px', fontSize: '9px', border: '1px solid #ddd' }}>
-                                                                        {exp.paidBy.charAt(0).toUpperCase()}
-                                                                    </div>
                                                                     <span>Paid by <span className="fw-bold text-dark">{exp.paidBy}</span></span>
                                                                 </div>
                                                             </Col>
