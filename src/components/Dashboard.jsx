@@ -49,6 +49,31 @@ const Dashboard = () => {
         window.location.reload(); // Refresh to show the new trip in the list
     };
 
+    const handleStatusUpdate = async (tripUID, newStatus) => {
+        setIsLoading(true);
+        try {
+            // url is 1st arg, body is 2nd arg, config (headers) is 3rd arg
+            const response = await axios.put(
+                `${API_URL}/trip/${tripUID}/update/status?newStatus=${newStatus}`,
+                {}, // Empty body
+                {
+                    headers: { Authorization: `Bearer ${token}` } // Correct config location
+                }
+            );
+
+            console.log("Status update response:", response.data?.data);
+
+            // Update local state instead of reloading
+            setTrips(prev => prev.map(t =>
+                t.tripUID === tripUID ? { ...t, tripStatus: newStatus } : t
+            ));
+        } catch (err) {
+            console.error("Failed to update status", err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     return (
         <Container className="py-5">
             <div className="d-flex justify-content-between align-items-end mb-5">
@@ -86,7 +111,7 @@ const Dashboard = () => {
                 ) : (
                     trips.map((trip) => (
                         <Col lg={4} md={6} key={trip.tripUID} className="mb-4">
-                            <TripCard trip={trip} />
+                            <TripCard trip={trip} onStatusUpdate={handleStatusUpdate} />
                         </Col>
                     ))
                 )}

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Container, Row, Col, Button, Card, Navbar, Nav } from 'react-bootstrap';
+import { Container, Row, Col, Button, Card, Navbar, Nav, Badge } from 'react-bootstrap';
 import axios from 'axios';
 import PageLoader from './loaders/PageLoader';
 import AddExpenseModal from './modal_popups/AddExpenseModal';
@@ -126,16 +126,26 @@ const TripDetailsPage = () => {
                             <Col>
                                 <h1 className="fw-bold">{trip.tripName}</h1>
                                 <p className="text-muted">{trip.tripType === 'group' ? '👥 Group Trip' : '👤 Solo Trip'}</p>
-                            </Col>
-                            <Col className="text-end">
-                                <Button
-                                    variant="success"
-                                    className="rounded-pill px-4"
-                                    onClick={() => setShowExpenseModal(true)}
+                                <Badge
+                                    pill
+                                    bg={trip.tripStatus === 'ACTIVE' || trip.tripStatus === 'CREATED' ? 'success' : 'secondary'}
+                                    className="px-3 py-2"
+                                    style={{ fontSize: '0.8rem', opacity: 0.9 }}
                                 >
-                                    Add Expense
-                                </Button>
+                                    {trip.tripStatus || 'Active'}
+                                </Badge>
                             </Col>
+                            {trip.tripStatus === 'ACTIVE' && (
+                                <Col className="text-end">
+                                    <Button
+                                        variant="success"
+                                        className="rounded-pill px-4"
+                                        onClick={() => setShowExpenseModal(true)}
+                                    >
+                                        Add Expense
+                                    </Button>
+                                </Col>
+                            )}
                         </Row>
                     </Card>
 
@@ -173,18 +183,20 @@ const TripDetailsPage = () => {
                                                         ))}
                                                     </div>
                                                 </Col>
-                                                <Col xs={1} className="text-end p-0">
-                                                    {/* The Edit Button */}
-                                                    <Button
-                                                        variant="outline-primary"
-                                                        size="sm"
-                                                        className="rounded-pill px-3 py-1 fw-bold edit-btn-hover"
-                                                        style={{ fontSize: '0.7rem', borderWidth: '1.5px' }}
-                                                        onClick={() => handleEditClick(exp)}
-                                                    >
-                                                        <i className="bi bi-pencil-fill me-1"></i> EDIT
-                                                    </Button>
-                                                </Col>
+                                                {trip.tripStatus === 'ACTIVE' && (
+                                                    <Col xs={1} className="text-end p-0">
+                                                        {/* The Edit Button */}
+                                                        <Button
+                                                            variant="outline-primary"
+                                                            size="sm"
+                                                            className="rounded-pill px-3 py-1 fw-bold edit-btn-hover"
+                                                            style={{ fontSize: '0.7rem', borderWidth: '1.5px' }}
+                                                            onClick={() => handleEditClick(exp)}
+                                                        >
+                                                            <i className="bi bi-pencil-fill me-1"></i> EDIT
+                                                        </Button>
+                                                    </Col>
+                                                )}
                                             </Row>
                                         </Card.Body>
                                     </Card>
