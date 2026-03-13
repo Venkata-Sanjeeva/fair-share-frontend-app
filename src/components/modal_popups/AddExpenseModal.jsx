@@ -1,29 +1,31 @@
-import React, { useState } from 'react';
-import { Modal, Button, Form } from 'react-bootstrap';
+import { useState, useEffect } from 'react';
+import { Modal, Button, Form, InputGroup } from 'react-bootstrap';
 import axios from 'axios';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
-const AddExpenseModal = ({ show, onHide, trip, token, onExpenseAdded, editData }) => {
+const AddExpenseModal = ({ show, onHide, trip, token, onExpenseAdded, editData, theme }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
-
     const [amount, setAmount] = useState(editData?.totalAmount || 0);
-    const [involvedMembers, setInvolvedMembers] = useState(
-        editData ? editData.splits.map(s => s.participantName) : trip.participants
-    );
+    const [involvedMembers, setInvolvedMembers] = useState([]);
+
+    // Sync state when modal opens or editData changes
+    useEffect(() => {
+        if (show) {
+            setAmount(editData?.totalAmount || 0);
+            setInvolvedMembers(editData ? editData.splits.map(s => s.participantName) : trip.participants);
+        }
+    }, [show, editData, trip.participants]);
 
     const handleCheckboxChange = (member) => {
         setInvolvedMembers(prev =>
-            prev.includes(member)
-                ? prev.filter(m => m !== member)
-                : [...prev, member]
+            prev.includes(member) ? prev.filter(m => m !== member) : [...prev, member]
         );
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         const formData = e.target.elements;
-
         const involvedParticipants = involvedMembers.length > 0 ? involvedMembers : trip.participants;
 
         const expenseData = {
@@ -38,68 +40,82 @@ const AddExpenseModal = ({ show, onHide, trip, token, onExpenseAdded, editData }
         try {
             let response;
             if (editData) {
-                // Update existing expense
                 response = await axios.put(`${API_URL}/expenses/update/${trip.tripUID}/${editData.expenseUID}`, expenseData, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
             } else {
-                // Create new expense
                 response = await axios.post(`${API_URL}/expenses/create`, expenseData, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
             }
-            onExpenseAdded(response.data?.data); // This updates the list in parent
+            onExpenseAdded(response.data?.data);
             onHide();
         } catch (err) {
-            console.error("Failed to add expense", err);
+            console.error("Failed to save expense", err);
         } finally {
             setIsSubmitting(false);
         }
     };
 
     return (
-        <Modal show={show} onHide={onHide} centered>
-            <Modal.Header closeButton>
-                <Modal.Title className="fw-bold">
-                    {editData ? "Edit Expense" : "Add New Expense"}
+        <Modal show={show} onHide={onHide} centered contentClassName="border-0 shadow-lg rounded-4">
+            <Modal.Header closeButton className="border-0 pb-0">
+                <Modal.Title className="fw-bold ps-2" style={{ color: '#2d3436' }}>
+                    {editData ? "📝 Edit Expense" : "💸 New Expense"}
                 </Modal.Title>
             </Modal.Header>
+            
             <Form onSubmit={handleSubmit}>
-                <Modal.Body>
-                    <Form.Group className="mb-3">
-                        <Form.Label>Description</Form.Label>
-                        <Form.Control
-                            name="description"
-                            defaultValue={editData?.description || ''}
-                            placeholder="e.g. Dinner at Promenade"
-                            required />
-                    </Form.Group>
+                <Modal.Body className="px-4 pt-3">
+                    {/* Amount Hero Input */}
+                    <div className="text-center mb-4 p-3 rounded-4" style={{ background: '#f8f9fa' }}>
+                        <label className="text-muted small fw-bold text-uppercase mb-1 d-block">Total Amount</label>
+                        <InputGroup className="justify-content-center border-0">
+                            <InputGroup.Text className="bg-transparent border-0 fs-3 fw-bold text-dark pe-1">₹</InputGroup.Text>
+                            <Form.Control
+                                name="amount"
+                                type="number"
+                                step="0.01"
+                                className="bg-transparent border-0 fs-1 fw-black p-0 text-dark"
+                                style={{ width: '150px', fontWeight: '800', outline: 'none', boxShadow: 'none' }}
+                                value={amount}
+                                onChange={(e) => setAmount(e.target.value)}
+                                placeholder="0.00"
+                                required
+                            />
+                        </InputGroup>
+                    </div>
 
                     <Form.Group className="mb-3">
-                        <Form.Label>Amount</Form.Label>
+                        <Form.Label className="small fw-bold text-muted text-uppercase">Description</Form.Label>
                         <Form.Control
-                            name="amount"
-                            type="number"
-                            onChange={(e) => setAmount(e.target.value)}
-                            placeholder="0.00"
+                            name="description"
+                            className="rounded-3 border-light-subtle p-2"
+                            defaultValue={editData?.description || ''}
+                            placeholder="Lunch, Fuel, Tickets..."
                             required
                         />
                     </Form.Group>
 
-                    <Form.Group className="mb-3">
-                        <Form.Label>Who Paid?</Form.Label>
-                        <Form.Select name="paidBy" required>
-                            {trip.participants.map((person, idx) => (
-                                <option key={idx} value={person}>{person}</option>
-                            ))}
-                        </Form.Select>
+                    <Form.Group className="mb-4">
+                        <Form.Label className="small fw-bold text-muted text-uppercase">Who Paid?</Form.Label>
+                        <div className="position-relative">
+                            <Form.Select name="paidBy" className="rounded-3 border-light-subtle p-2 appearance-none" defaultValue={editData?.paidBy}>
+                                {trip.participants.map((person, idx) => (
+                                    <option key={idx} value={person}>{person}</option>
+                                ))}
+                            </Form.Select>
+                            <i className="bi bi-person-circle position-absolute" style={{ right: '35px', top: '10px', color: theme.color }}></i>
+                        </div>
                     </Form.Group>
-                    <Form.Group className="mb-3 border rounded p-3 bg-light">
-                        <Form.Label className="fw-bold mb-3 d-block text-center">
-                            Who is involved in this expense?
+
+                    {/* Split Selector Section */}
+                    <div className="rounded-4 p-3 border border-light shadow-sm" style={{ background: '#fff' }}>
+                        <Form.Label className="fw-bold small text-dark d-block mb-3">
+                            <i className="bi bi-people-fill me-2"></i>Split between:
                         </Form.Label>
 
-                        <div className="d-flex flex-wrap gap-2 justify-content-center">
+                        <div className="d-flex flex-wrap gap-2 mb-3">
                             {trip.participants.map((member, idx) => {
                                 const isSelected = involvedMembers.includes(member);
                                 return (
@@ -107,40 +123,52 @@ const AddExpenseModal = ({ show, onHide, trip, token, onExpenseAdded, editData }
                                         <input
                                             type="checkbox"
                                             className="btn-check"
-                                            id={`btn-check-${idx}`}
+                                            id={`member-${idx}`}
                                             checked={isSelected}
                                             onChange={() => handleCheckboxChange(member)}
-                                            autoComplete="off"
                                         />
                                         <label
-                                            className={`btn rounded-pill px-3 shadow-sm ${isSelected ? 'btn-primary' : 'btn-outline-secondary bg-white'
-                                                }`}
-                                            htmlFor={`btn-check-${idx}`}
-                                            style={{ transition: 'all 0.2s ease' }}
+                                            className={`btn rounded-pill px-3 py-1 small fw-bold transition-all ${
+                                                isSelected ? 'shadow-sm' : 'opacity-50'
+                                            }`}
+                                            style={{
+                                                backgroundColor: isSelected ? theme.color : '#eee',
+                                                color: isSelected ? '#fff' : '#666',
+                                                border: 'none',
+                                                fontSize: '0.8rem'
+                                            }}
+                                            htmlFor={`member-${idx}`}
                                         >
-                                            {isSelected ? '✓ ' : ''}{member}
+                                            {member}
                                         </label>
                                     </div>
                                 );
                             })}
                         </div>
 
-                        <div className="text-center mt-3">
-                            <small className="text-primary fw-bold">
-                                Splitting ₹{amount || 0} among {involvedMembers.length} people
-                            </small>
-                            <br />
-                            <small className="text-muted">
-                                (₹{(amount / (involvedMembers.length || 1)).toFixed(2)} each)
-                            </small>
+                        {/* Live Calculation Footer */}
+                        <div className="pt-2 border-top d-flex justify-content-between align-items-center">
+                            <span className="text-muted small">Equal Split</span>
+                            <div className="text-end">
+                                <div className="fw-bold" style={{ color: theme.color }}>
+                                    ₹{(amount / (involvedMembers.length || 1)).toFixed(2)} <small className="text-muted">/ person</small>
+                                </div>
+                            </div>
                         </div>
-                    </Form.Group>
-                    <p className="text-muted small">This expense will be split equally among all members.</p>
+                    </div>
                 </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={onHide}>Cancel</Button>
-                    <Button variant="success" type="submit" disabled={isSubmitting}>
-                        {isSubmitting ? "Saving..." : "Add Expense"}
+
+                <Modal.Footer className="border-0 px-4 pb-4 pt-0">
+                    <Button variant="light" className="rounded-pill px-4 fw-bold text-muted" onClick={onHide}>
+                        Discard
+                    </Button>
+                    <Button 
+                        type="submit" 
+                        className="rounded-pill px-4 fw-bold shadow-sm" 
+                        style={{ backgroundColor: theme.color, border: 'none' }}
+                        disabled={isSubmitting}
+                    >
+                        {isSubmitting ? "Processing..." : (editData ? "Update Expense" : "Save Expense")}
                     </Button>
                 </Modal.Footer>
             </Form>
