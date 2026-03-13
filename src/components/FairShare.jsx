@@ -4,6 +4,7 @@ import PageLoader from './loaders/PageLoader';
 import '../styles/home.css';
 import { useNavigate } from 'react-router-dom';
 import Dashboard from './Dashboard';
+import FairShareNavbar from "./FairShareNavbar";
 
 const FairShareHome = () => {
     const [user, setUser] = useState(null);
@@ -29,27 +30,7 @@ const FairShareHome = () => {
 
     return (
         <div className="fairshare-app">
-            <Navbar variant="dark" expand="lg" className="nav-custom sticky-top">
-                <Container>
-                    <Navbar.Brand href="/home" onClick={() => navigate('/home')} className="fw-bold fs-3">FairShare</Navbar.Brand>
-                    <Navbar.Toggle />
-                    <Navbar.Collapse>
-                        <Nav className="ms-auto align-items-center">
-                            {user ? (
-                                <>
-                                    <span className="text-light me-3">{user.email}</span>
-                                    <Button variant="outline-light" size="sm" onClick={handleLogout}>Logout</Button>
-                                </>
-                            ) : (
-                                <>
-                                    <Nav.Link onClick={() => navigate('/login')}>Login</Nav.Link>
-                                    <Button onClick={() => navigate('/register')}>Join Free</Button>
-                                </>
-                            )}
-                        </Nav>
-                    </Navbar.Collapse>
-                </Container>
-            </Navbar>
+            <FairShareNavbar user={user} handleLogout={handleLogout} />
 
             {user ? (<Dashboard user={user} />) : (
                 <HeroView onGetStarted={() => navigate('/register')} />

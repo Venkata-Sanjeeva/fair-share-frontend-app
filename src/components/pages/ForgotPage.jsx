@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import { Container, Card, Form, Button, Alert, Navbar, Nav } from 'react-bootstrap';
+import { useState } from 'react';
+import { Container, Card, Form, Button, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import ButtonLoader from '../loaders/ButtonLoader';
 import useAlert from '../utils/ShowAlert'; // Using your hook
 import axios from 'axios';
 import { validateEmail } from '../utils/Validations';
+import FairShareNavbar from "../FairShareNavbar";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -42,19 +43,7 @@ const ForgotPage = () => {
 
     return (
         <>
-            <Navbar variant="dark" expand="lg" className="nav-custom sticky-top">
-                <Container>
-                    <Navbar.Brand onClick={() => navigate('/home')} className="fw-bold fs-3 cursor-pointer" style={{ cursor: 'pointer' }}>
-                        FairShare
-                    </Navbar.Brand>
-                    <Nav className="ms-auto align-items-center">
-                        <>
-                            <Nav.Link onClick={() => navigate('/login')}>Login</Nav.Link>
-                            <Button onClick={() => navigate('/register')}>Join Free</Button>
-                        </>
-                    </Nav>
-                </Container>
-            </Navbar>
+            <FairShareNavbar user={null} onLogout={null} />
 
             <Container className="d-flex justify-content-center align-items-center vh-100">
                 <Card className="auth-card shadow-lg" style={{ maxWidth: '400px', width: '100%' }}>

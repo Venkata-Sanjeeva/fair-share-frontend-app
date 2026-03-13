@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Container, Row, Col, Button, Card, Navbar, Nav, Badge } from 'react-bootstrap';
+import { Container, Row, Col, Button, Card, Badge } from 'react-bootstrap';
 import axios from 'axios';
 import PageLoader from './loaders/PageLoader';
 import AddExpenseModal from './modal_popups/AddExpenseModal';
+import FairShareNavbar from "./FairShareNavbar";
 import "../styles/tripDetailsPage.css";
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -104,15 +105,7 @@ const TripDetailsPage = () => {
 
     return (
         <div style={{ backgroundColor: '#f8f9fa', minHeight: '100vh' }}>
-            <Navbar variant="dark" expand="lg" className="nav-custom sticky-top shadow-sm">
-                <Container>
-                    <Navbar.Brand href="/home" className="fw-bold fs-3">FairShare</Navbar.Brand>
-                    <Nav className="ms-auto align-items-center">
-                        <span className="text-light me-3 d-none d-md-inline small opacity-75">{user.email}</span>
-                        <Button variant="outline-light" size="sm" className="rounded-pill px-3" onClick={handleLogout}>Logout</Button>
-                    </Nav>
-                </Container>
-            </Navbar>
+            <FairShareNavbar user={user} onLogout={handleLogout} />
 
             <Container className="py-4">
                 <Button variant="link" onClick={() => navigate(-1)} className="text-decoration-none text-muted mb-3 p-0 small">
