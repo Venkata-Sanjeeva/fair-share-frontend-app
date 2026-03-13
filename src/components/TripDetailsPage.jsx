@@ -116,12 +116,12 @@ const TripDetailsPage = () => {
                         <h3>Trip not found.</h3>
                     </Card>
                 </Container>
-                : <Container className="py-4">
+                : <Container className="mt-4">
                     <Button variant="link" onClick={() => navigate(-1)} className="text-decoration-none mb-3">
                         ← Back to Dashboard
                     </Button>
 
-                    <Card className="shadow-sm border-0 rounded-4 p-4 mb-4">
+                    <Card className="shadow-sm border-0 rounded-4 mb-4 p-3">
                         <Row className="align-items-center">
                             <Col>
                                 <h1 className="fw-bold">{trip.tripName}</h1>
@@ -140,7 +140,7 @@ const TripDetailsPage = () => {
                     </Card>
 
                     <Row>
-                        <Col lg={8}>
+                        <Col lg={8} style={{ maxHeight: '400px', overflowY: 'auto' }}>
                             <h5 className="fw-bold mb-3">Expenses</h5>
                             {expenses.length === 0 ? (
                                 <div className="p-5 bg-light text-center rounded-3 border">
