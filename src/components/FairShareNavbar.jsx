@@ -3,7 +3,7 @@ import { Navbar, Container, Nav, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import '../styles/fairShareNavbar.css';
 
-const FairShareNavbar = ({ user, handleLogout }) => {
+const FairShareNavbar = ({ user = null, handleLogout = null }) => {
     const navigate = useNavigate();
 
     return (

@@ -133,16 +133,30 @@ const TripDetailsPage = () => {
                                             {trip.tripType === 'group' ? '👥 Group' : '👤 Solo'} • Created {new Date(trip.createdAt).toLocaleDateString()}
                                         </p>
                                     </Col>
-                                    <Col md={4} className="text-md-end mt-3 mt-md-0">
-                                        {trip.tripStatus === 'ACTIVE' && (
-                                            <Button
-                                                style={{ background: theme.gradient, border: 'none' }}
-                                                className="rounded-pill px-4 py-2 fw-bold shadow-sm"
-                                                onClick={() => setShowExpenseModal(true)}
-                                            >
-                                                <i className="bi bi-plus-lg me-2"></i>Add Expense
-                                            </Button>
-                                        )}
+                                    <Col md={4} className="mt-3 mt-md-0">
+                                        <div className="d-flex justify-content-md-end gap-2">
+                                            {trip.tripStatus === 'ACTIVE' && (
+                                                <Button
+                                                    style={{ background: theme.gradient, border: 'none' }}
+                                                    className="rounded-pill px-4 py-2 fw-bold shadow-sm"
+                                                    onClick={() => setShowExpenseModal(true)}
+                                                >
+                                                    <i className="bi bi-plus-lg me-2"></i>
+                                                    Add Expense
+                                                </Button>
+                                            )}
+
+                                            {trip.tripStatus === 'COMPLETED' && (
+                                                <Button
+                                                    style={{ background: theme.gradient, border: 'none' }}
+                                                    className="rounded-pill px-4 py-2 fw-bold shadow-sm"
+                                                    onClick={() => navigate(`/trip/${tripUID}/report`)}
+                                                >
+                                                    <i className="bi bi-file-earmark-text me-2"></i>
+                                                    Generate Report
+                                                </Button>
+                                            )}
+                                        </div>
                                     </Col>
                                 </Row>
                             </Card.Body>

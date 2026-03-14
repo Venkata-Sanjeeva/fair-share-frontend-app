@@ -9,6 +9,7 @@ import RegisterPage from './components/pages/RegisterPage';
 import ForgotPage from './components/pages/ForgotPage';
 import ProtectedRoute from './components/utils/ProtectedRoute';
 import TripDetailsPage from './components/TripDetailsPage';
+import TripExpenseReport from './components/TripExpenseReport';
 
 const routes = createBrowserRouter([
   {
@@ -41,7 +42,15 @@ const routes = createBrowserRouter([
   },
   {
     path: '/trip/:tripUID',
-    element: <TripDetailsPage />,
+    element: <ProtectedRoute>
+        <TripDetailsPage />
+    </ProtectedRoute>,
+  },
+  {
+    path: '/trip/:tripUID/report',
+    element: <ProtectedRoute>
+        <TripExpenseReport />
+    </ProtectedRoute>,
   },
 ]);
 
