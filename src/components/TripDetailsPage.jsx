@@ -216,7 +216,7 @@ const TripDetailsPage = () => {
                                                                     </span>
                                                                 </div>
                                                                 <div className="d-flex align-items-center text-muted" style={{ fontSize: '0.75rem' }}>
-                                                                    <span>Paid by <span className="fw-bold text-dark">{exp.paidBy}</span></span>
+                                                                    <span>Paid by <span className="fw-bold text-dark">{exp.paidBy?.participantName}</span></span>
                                                                 </div>
                                                             </Col>
 
@@ -253,9 +253,9 @@ const TripDetailsPage = () => {
                                 <h5 className="fw-bold mb-3" style={{ color: '#2d3436' }}>Trip Members</h5>
                                 <Card className="border-0 shadow-sm rounded-4 p-4 bg-white">
                                     <div className="d-flex flex-wrap gap-2 mb-4">
-                                        {trip.participants.map((name, index) => (
+                                        {trip.participants.map((parti, index) => (
                                             <Badge key={index} bg="light" text="dark" className="px-3 py-2 rounded-pill border fw-normal">
-                                                <i className="bi bi-person-circle me-1 text-primary"></i> {name}
+                                                <i className="bi bi-person-circle me-1 text-primary"></i> {parti.participantName}
                                             </Badge>
                                         ))}
                                     </div>

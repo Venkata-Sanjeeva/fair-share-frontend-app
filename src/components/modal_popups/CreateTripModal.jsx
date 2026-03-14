@@ -35,10 +35,6 @@ const CreateTripModal = ({ show, onHide, onCreate, token = "" }) => {
 
         setIsSubmitting(true);
 
-        // Get your token safely
-        const userData = localStorage.getItem('fs_user');
-        const token = userData ? JSON.parse(userData).token : null;
-
         const tripObj = {
             tripName,
             tripType,

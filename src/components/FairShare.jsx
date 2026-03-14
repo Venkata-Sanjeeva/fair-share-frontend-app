@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Button, Navbar, Nav } from 'react-bootstrap';
+import { Container, Button } from 'react-bootstrap';
 import PageLoader from './loaders/PageLoader';
 import '../styles/home.css';
 import { useNavigate } from 'react-router-dom';

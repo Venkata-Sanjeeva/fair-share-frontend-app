@@ -99,7 +99,7 @@ const TripCard = ({ trip, onStatusUpdate }) => {
                                         fontWeight: 'bold',
                                         zIndex: 3 - i // Ensures first avatar is on top
                                     }}>
-                                    {p.substring(0, 1).toUpperCase()}
+                                    {p?.participantName.substring(0, 1).toUpperCase()}
                                 </div>
                             ))}
                         </div>

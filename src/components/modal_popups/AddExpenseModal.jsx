@@ -13,13 +13,13 @@ const AddExpenseModal = ({ show, onHide, trip, token, onExpenseAdded, editData, 
     useEffect(() => {
         if (show) {
             setAmount(editData?.totalAmount || 0);
-            setInvolvedMembers(editData ? editData.splits.map(s => s.participantName) : trip.participants);
+            setInvolvedMembers(editData ? editData.splits.map(s => s.participant) : trip.participants);
         }
     }, [show, editData, trip.participants]);
 
     const handleCheckboxChange = (member) => {
         setInvolvedMembers(prev =>
-            prev.includes(member) ? prev.filter(m => m !== member) : [...prev, member]
+            prev.find(parti => parti?.participantUID === member?.participantUID) ? prev.filter(m => m?.participantUID !== member?.participantUID) : [...prev, member]
         );
     };
 
@@ -32,9 +32,10 @@ const AddExpenseModal = ({ show, onHide, trip, token, onExpenseAdded, editData, 
             tripUID: trip.tripUID,
             description: formData.description.value,
             totalAmount: parseFloat(formData.amount.value),
-            paidByParticipantName: formData.paidBy.value,
-            involvedParticipantNames: involvedParticipants
+            paidByParticipantUID: formData.paidBy.value,
+            involvedParticipants: involvedParticipants
         };
+        console.log(expenseData);
 
         setIsSubmitting(true);
         try {
@@ -64,7 +65,7 @@ const AddExpenseModal = ({ show, onHide, trip, token, onExpenseAdded, editData, 
                     {editData ? "📝 Edit Expense" : "💸 New Expense"}
                 </Modal.Title>
             </Modal.Header>
-            
+
             <Form onSubmit={handleSubmit}>
                 <Modal.Body className="px-4 pt-3">
                     {/* Amount Hero Input */}
@@ -98,15 +99,18 @@ const AddExpenseModal = ({ show, onHide, trip, token, onExpenseAdded, editData, 
                     </Form.Group>
 
                     <Form.Group className="mb-4">
-                        <Form.Label className="small fw-bold text-muted text-uppercase">Who Paid?</Form.Label>
-                        <div className="position-relative">
-                            <Form.Select name="paidBy" className="rounded-3 border-light-subtle p-2 appearance-none" defaultValue={editData?.paidBy}>
-                                {trip.participants.map((person, idx) => (
-                                    <option key={idx} value={person}>{person}</option>
-                                ))}
-                            </Form.Select>
-                            <i className="bi bi-person-circle position-absolute" style={{ right: '35px', top: '10px', color: theme.color }}></i>
-                        </div>
+                        <Form.Label>Who Paid?</Form.Label>
+                        <Form.Select
+                            name="paidBy"
+                            className="rounded-3"
+                            defaultValue={editData?.paidBy?.participantUID || trip.participants[0]?.participantUID}
+                        >
+                            {trip.participants.map((person, idx) => (
+                                <option key={idx} value={person?.participantUID}>
+                                    {person?.participantName}
+                                </option>
+                            ))}
+                        </Form.Select>
                     </Form.Group>
 
                     {/* Split Selector Section */}
@@ -117,7 +121,7 @@ const AddExpenseModal = ({ show, onHide, trip, token, onExpenseAdded, editData, 
 
                         <div className="d-flex flex-wrap gap-2 mb-3">
                             {trip.participants.map((member, idx) => {
-                                const isSelected = involvedMembers.includes(member);
+                                const isSelected = involvedMembers.find(parti => parti?.participantUID === member?.participantUID);
                                 return (
                                     <div key={idx}>
                                         <input
@@ -128,9 +132,8 @@ const AddExpenseModal = ({ show, onHide, trip, token, onExpenseAdded, editData, 
                                             onChange={() => handleCheckboxChange(member)}
                                         />
                                         <label
-                                            className={`btn rounded-pill px-3 py-1 small fw-bold transition-all ${
-                                                isSelected ? 'shadow-sm' : 'opacity-50'
-                                            }`}
+                                            className={`btn rounded-pill px-3 py-1 small fw-bold transition-all ${isSelected ? 'shadow-sm' : 'opacity-50'
+                                                }`}
                                             style={{
                                                 backgroundColor: isSelected ? theme.color : '#eee',
                                                 color: isSelected ? '#fff' : '#666',
@@ -139,7 +142,7 @@ const AddExpenseModal = ({ show, onHide, trip, token, onExpenseAdded, editData, 
                                             }}
                                             htmlFor={`member-${idx}`}
                                         >
-                                            {member}
+                                            {member?.participantName}
                                         </label>
                                     </div>
                                 );
@@ -162,9 +165,9 @@ const AddExpenseModal = ({ show, onHide, trip, token, onExpenseAdded, editData, 
                     <Button variant="light" className="rounded-pill px-4 fw-bold text-muted" onClick={onHide}>
                         Discard
                     </Button>
-                    <Button 
-                        type="submit" 
-                        className="rounded-pill px-4 fw-bold shadow-sm" 
+                    <Button
+                        type="submit"
+                        className="rounded-pill px-4 fw-bold shadow-sm"
                         style={{ backgroundColor: theme.color, border: 'none' }}
                         disabled={isSubmitting}
                     >

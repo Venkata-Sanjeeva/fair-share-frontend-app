@@ -99,7 +99,7 @@ const Dashboard = () => {
                         </div>
                     </Col>
                 ) : !trips || trips.length === 0 ? (
-                    <Col className="text-center py-5">
+                    <Col className="text-center">
                         <div className="p-5 bg-white rounded-4 shadow-sm border">
                             <h3 className="text-muted fw-light">No trips found</h3>
                             <p className="small text-muted mb-4">You haven't added any trips yet. Ready for a new adventure?</p>
