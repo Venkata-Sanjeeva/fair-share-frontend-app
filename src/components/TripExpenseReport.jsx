@@ -5,6 +5,7 @@ import axios from "axios";
 import html2pdf from "html2pdf.js";
 import FairShareNavbar from "./FairShareNavbar";
 import ComponentLoader from "./loaders/ComponentLoader";
+import "../styles/tripExpenseReport.css";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -46,33 +47,40 @@ const TripExpenseReport = () => {
     const addImage = (e) => {
 
         const file = e.target.files[0];
+        if (!file) return;
 
         const reader = new FileReader();
 
         reader.onloadend = () => {
-
             setImages(prev => [...prev, reader.result]);
-
         };
 
         reader.readAsDataURL(file);
 
+        e.target.value = null;
     };
 
     const exportPDF = () => {
 
         const element = document.getElementById("tripReport");
 
-        html2pdf()
-            .set({
-                margin: 10,
-                filename: `${report.tripName}_Report.pdf`,
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
-            })
-            .from(element)
-            .save();
+        const opt = {
+            margin: 10,
+            filename: `${report.tripName}_Travel_Report_By_Fair_Share.pdf`,
+            image: { type: "jpeg", quality: 0.98 },
+            html2canvas: {
+                scale: 3,
+                useCORS: true,
+                scrollY: 0
+            },
+            jsPDF: {
+                unit: "mm",
+                format: "a4",
+                orientation: "portrait"
+            }
+        };
 
+        html2pdf().set(opt).from(element).save();
     };
 
     return (
@@ -94,174 +102,188 @@ const TripExpenseReport = () => {
                     </div>
 
                     <Card className="p-4 shadow-sm">
-
                         <div id="tripReport">
 
+                            {images.length > 0 && (
+                                <img
+                                    src={images[0]}
+                                    alt="Trip Cover"
+                                    className="trip-cover"
+                                />
+                            )}
+
                             {/* Trip Title */}
+                            <div className="travel-header text-center">
 
-                            <h1>{report.tripName}</h1>
+                                <h1 className="travel-title">
+                                    {report.tripName.replaceAll("_", " ")}
+                                </h1>
 
-                            <p>
-                                Total Trip Amount : ₹{report.totalTripAmount}
-                            </p>
+                                <p className="travel-subtitle">
+                                    Travel Expense Summary
+                                </p>
+                            </div>
+
+                            {/* Trip Summary */}
+                            <div className="trip-summary-grid">
+
+                                <div className="summary-card">
+                                    <span className="summary-label">Total Trip Cost</span>
+                                    <span className="summary-value">₹{report.totalTripAmount.toFixed(2)}</span>
+                                </div>
+
+                                <div className="summary-card">
+                                    <span className="summary-label">Participants</span>
+                                    <span className="summary-value">{report.tripParticipants.length}</span>
+                                </div>
+
+                                <div className="summary-card">
+                                    <span className="summary-label">Generated On</span>
+                                    <span className="summary-value">{new Date().toLocaleDateString()}</span>
+                                </div>
+
+                            </div>
 
                             <hr />
 
-                            {/* Participant Summary */}
+                            {/* Participant Settlement Summary */}
+                            <div className="report-section">
 
-                            <h3>Participants Summary</h3>
-
-                            <Table bordered>
-
-                                <thead>
-
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Share Amount</th>
-                                        <th>Paid</th>
-                                        <th>Balance</th>
-                                    </tr>
-
-                                </thead>
-
-                                <tbody>
-
-                                    {report.tripParticipants.map((p) => (
-
-                                        <tr key={p.participant.participantUID}>
-
-                                            <td>
-                                                {p.participant.participantName}
-                                            </td>
-
-                                            <td>
-                                                ₹{p.shareAmount.toFixed(2)}
-                                            </td>
-
-                                            <td>
-                                                ₹{p.amountPaidInTrip.toFixed(2)}
-                                            </td>
-
-                                            <td>
-                                                ₹{p.totalAmountToBePaid.toFixed(2)}
-                                            </td>
-
-                                        </tr>
-
-                                    ))}
-
-                                </tbody>
-
-                            </Table>
-
-                            {/* Expense Split Per Person */}
-
-                            {report.tripParticipants.map((p) => (
-
-                                <div key={p.participant.participantUID} className="mt-4">
-
-                                    <h4>
-                                        {p.participant.participantName}'s Expense Breakdown
-                                    </h4>
-
-                                    <Table bordered size="sm">
-
-                                        <thead>
-
-                                            <tr>
-                                                <th>Expense</th>
-                                                <th>Total Expense</th>
-                                                <th>Share</th>
-                                            </tr>
-
-                                        </thead>
-
-                                        <tbody>
-
-                                            {p.listExpensesToBePaid.map((e) => (
-
-                                                <tr key={e.expenseUID}>
-
-                                                    <td>{e.expenseDesc}</td>
-
-                                                    <td>
-                                                        ₹{e.totalExpenseAmount.toFixed(2)}
-                                                    </td>
-
-                                                    <td>
-                                                        ₹{e.amountToBePaid.toFixed(2)}
-                                                    </td>
-
-                                                </tr>
-
-                                            ))}
-
-                                        </tbody>
-
-                                    </Table>
-
+                                <div className="report-section-header">
+                                    <h3>Settlement Summary</h3>
+                                    <p>Overview of how much each participant paid and owes</p>
                                 </div>
 
-                            ))}
+                                <div className="participant-grid">
+                                    {report.tripParticipants.map((p) => {
 
+                                        const balance = p.amountPaidInTrip - p.shareAmount;
+
+                                        return (
+                                            <div className="participant-card" key={p.participant.participantUID}>
+
+                                                <h5>{p.participant.participantName}</h5>
+
+                                                <p>Paid ₹{p.amountPaidInTrip.toFixed(2)}</p>
+
+                                                <p>Share ₹{p.shareAmount.toFixed(2)}</p>
+
+                                                <p className={balance >= 0 ? "balance-positive" : "balance-negative"}>
+                                                    {balance >= 0 ? "Gets" : "Owes"} ₹{Math.abs(balance).toFixed(2)}
+                                                </p>
+
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+
+                            </div>
+
+                            {/* Expense Split Per Person */}
+                            <div className="report-section">
+
+                                <div className="report-section-header">
+                                    <h3>Expense Breakdown</h3>
+                                    <p>Detailed expense distribution for each participant</p>
+                                </div>
+
+                                {report.tripParticipants.map((p) => (
+                                    <div className="expense-section" key={p.participant.participantUID}>
+
+                                        <div className="expense-header">
+                                            <h4>{p.participant.participantName}</h4>
+                                        </div>
+
+                                        <Table bordered size="sm">
+
+                                            <thead>
+                                                <tr>
+                                                    <th>Expense</th>
+                                                    <th>Total Amount</th>
+                                                    <th>Share Amount</th>
+                                                </tr>
+                                            </thead>
+
+                                            <tbody>
+                                                {p.listExpensesToBePaid.map((e) => (
+                                                    <tr key={e.expenseUID}>
+                                                        <td>{e.expenseDesc.replaceAll("_", " ")}</td>
+                                                        <td>₹{e.totalExpenseAmount.toFixed(2)}</td>
+                                                        <td>₹{e.amountToBePaid.toFixed(2)}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+
+                                        </Table>
+
+                                    </div>
+                                ))}
+
+                            </div>
                             {/* Route Section */}
 
-                            <div className="mt-4">
+                            <div className="travel-section">
 
                                 <h3>Route Taken</h3>
 
                                 <Form.Control
                                     as="textarea"
                                     rows={3}
-                                    placeholder="Enter route details..."
+                                    placeholder="Enter route taken during the trip..."
                                     value={route}
                                     onChange={(e) => setRoute(e.target.value)}
+                                    className="mb-2"
                                 />
+
+                                <div className="travel-box">
+                                    {route || "Route preview will appear here"}
+                                </div>
 
                             </div>
 
                             {/* Notes */}
 
-                            <div className="mt-4">
+                            <div className="travel-section">
 
                                 <h3>Trip Notes</h3>
 
                                 <Form.Control
                                     as="textarea"
                                     rows={4}
-                                    placeholder="Write notes for the trip..."
+                                    placeholder="Write memories or notes about the trip..."
                                     value={notes}
                                     onChange={(e) => setNotes(e.target.value)}
+                                    className="mb-2"
                                 />
+
+                                <div className="travel-box">
+                                    {notes || "Notes preview will appear here"}
+                                </div>
 
                             </div>
 
                             {/* Images */}
 
-                            <div className="mt-4">
+                            <div className="travel-section">
 
-                                <h3>Trip Images</h3>
+                                <h3>Trip Memories</h3>
 
-                                <input
+                                <Form.Control
                                     type="file"
+                                    accept="image/*"
                                     onChange={addImage}
+                                    className="mb-3"
                                 />
 
-                                <div className="d-flex flex-wrap mt-3">
+                                <div className="memory-grid">
 
                                     {images.map((img, index) => (
-
                                         <img
                                             key={index}
                                             src={img}
-                                            alt="trip"
-                                            style={{
-                                                width: "200px",
-                                                margin: "10px",
-                                                borderRadius: "8px"
-                                            }}
+                                            className="memory-img"
+                                            alt="trip memory"
                                         />
-
                                     ))}
 
                                 </div>
@@ -269,8 +291,17 @@ const TripExpenseReport = () => {
                             </div>
 
                         </div>
-
                     </Card>
+
+                    <div className="report-footer">
+
+                        <hr />
+
+                        <p>
+                            This report was automatically generated by FairShare.
+                        </p>
+
+                    </div>
 
                 </Container>)
             }

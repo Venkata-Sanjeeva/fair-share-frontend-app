@@ -1,0 +1,136 @@
+.travel-header {
+    margin-bottom: 30px;
+}
+
+.travel-title {
+    font-size: 32px;
+    font-weight: 700;
+}
+
+.travel-subtitle {
+    color: #888;
+}
+
+.trip-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin: 25px 0;
+}
+
+.summary-card {
+    border: 1px solid #eee;
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+    background: #fafafa;
+}
+
+.summary-label {
+    display: block;
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 5px;
+}
+
+.summary-value {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.trip-cover {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+.participant-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.participant-card {
+    background: white;
+    border-radius: 10px;
+    padding: 16px;
+    border: 1px solid #eee;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+}
+
+.expense-section {
+    margin-top: 25px;
+    padding: 18px;
+    border-radius: 10px;
+    border: 1px solid #eee;
+    background: #fafafa;
+}
+
+.expense-header {
+    margin-bottom: 10px;
+}
+
+.expense-header h4 {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.travel-box {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.memory-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.memory-img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.balance-positive {
+    color: #27ae60;
+    font-weight: 600;
+}
+
+.balance-negative {
+    color: #e74c3c;
+    font-weight: 600;
+}
+
+.report-section {
+    margin-top: 40px;
+}
+
+.report-section-header {
+    margin-bottom: 20px;
+}
+
+.report-section-header h3 {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.report-section-header p {
+    font-size: 13px;
+    color: #777;
+    margin: 0;
+}
+
+.report-footer {
+    text-align: center;
+    font-size: 12px;
+    color: #888;
+    margin-top: 40px;
+}
