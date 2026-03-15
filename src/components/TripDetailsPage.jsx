@@ -34,6 +34,22 @@ const TripDetailsPage = () => {
         return member.amountPaidInTrip - member.shareAmount;
     };
 
+    const fetchExpenses = async () => {
+        try {
+            const response = await axios.get(`${API_URL}/expenses/fetch/${tripUID}`, {
+                headers: { Authorization: `Bearer ${user.token}` }
+            });
+
+            const data = response?.data?.data;
+            setExpenses(data);
+
+        } catch (err) {
+            console.error("Error fetching expenses", err);
+        } finally {
+            setCompLoading(false);
+        }
+    };
+
     const fetchTripDetails = async () => {
         try {
             const response = await axios.get(`${API_URL}/trip/${tripUID}`, {
@@ -43,13 +59,8 @@ const TripDetailsPage = () => {
             // Using optional chaining to safely access data
             const tripData = response.data?.data || response.data;
 
-            const expensesResponse = await axios.get(`${API_URL}/expenses/fetch/${tripUID}`, {
-                headers: { Authorization: `Bearer ${user.token}` }
-            });
-            const expensesData = expensesResponse.data?.data || expensesResponse.data;
-
             setTrip(tripData);
-            setExpenses(expensesData);
+            fetchExpenses();
 
         } catch (err) {
             console.error("Error fetching trip:", err);
@@ -93,6 +104,8 @@ const TripDetailsPage = () => {
                 return [updatedExpense, ...prevExpenses];
             }
         });
+
+        fetchBalances();
 
         setTimeout(() => {
             setCompLoading(false);
