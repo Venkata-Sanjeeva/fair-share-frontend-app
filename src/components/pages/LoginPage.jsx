@@ -13,6 +13,7 @@ const LoginPage = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();
     const { alert, showAlert } = useAlert();
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -68,8 +69,30 @@ const LoginPage = () => {
                         <Form.Group className="mb-3">
                             <Form.Control name="email" type="email" placeholder="Email" required />
                         </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Control name="password" type="password" placeholder="Password" required />
+                        <Form.Group className="mb-3 position-relative">
+
+                            <Form.Control
+                                name="password"
+                                type={showPassword ? "text" : "password"}
+                                placeholder="Password"
+                                required
+                                className="pe-5"
+                            />
+
+                            <i
+                                className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"}`}
+                                onClick={() => setShowPassword(!showPassword)}
+                                style={{
+                                    position: "absolute",
+                                    right: "15px",
+                                    top: "50%",
+                                    transform: "translateY(-50%)",
+                                    cursor: "pointer",
+                                    fontSize: "18px",
+                                    color: "#6c757d"
+                                }}
+                            ></i>
+
                         </Form.Group>
                         <Button variant="primary" type="submit" className="w-100 btn-primary-grad py-2" disabled={isSubmitting}>
                             {isSubmitting ? <ButtonLoader message="Logging in..." /> : "Login"}

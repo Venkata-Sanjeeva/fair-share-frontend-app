@@ -83,9 +83,14 @@ const TripExpenseReport = () => {
         html2pdf().set(opt).from(element).save();
     };
 
+    const handleLogout = () => {
+        localStorage.removeItem('fs_user');
+        navigate('/home');
+    };
+
     return (
         <>
-            <FairShareNavbar user={user} />
+            <FairShareNavbar user={user} handleLogout={handleLogout}/>
             {!report ? <ComponentLoader message="Loading Trip Expense Report..." /> :
                 (<Container className="py-4">
                     <Button variant="link" onClick={() => navigate(-1)} className="text-decoration-none text-muted mb-3 p-0 small">

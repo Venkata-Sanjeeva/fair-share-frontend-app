@@ -10,6 +10,9 @@ import ForgotPage from './components/pages/ForgotPage';
 import ProtectedRoute from './components/utils/ProtectedRoute';
 import TripDetailsPage from './components/TripDetailsPage';
 import TripExpenseReport from './components/TripExpenseReport';
+import ResetPasswordPage from './components/pages/ResetPasswordPage';
+import PageNotFound from './components/pages/PageNotFound';
+import LandingPage from './components/pages/LandingPage';
 
 const routes = createBrowserRouter([
   {
@@ -18,8 +21,8 @@ const routes = createBrowserRouter([
   },
   {
     path: '/home',
-    element: <FairShareHome />, // This handles landing + view switching for now
-  },
+    element: <LandingPage />,
+  }, ,
   {
     path: '/login',
     element: <LoginPage />,
@@ -33,6 +36,11 @@ const routes = createBrowserRouter([
     element: <ForgotPage />,
   },
   {
+    path: '/reset-password',
+    element: <ResetPasswordPage />,
+  },
+  // Protected Routes
+  {
     path: '/dashboard',
     element: (
       <ProtectedRoute>
@@ -43,15 +51,19 @@ const routes = createBrowserRouter([
   {
     path: '/trip/:tripUID',
     element: <ProtectedRoute>
-        <TripDetailsPage />
+      <TripDetailsPage />
     </ProtectedRoute>,
   },
   {
     path: '/trip/:tripUID/report',
     element: <ProtectedRoute>
-        <TripExpenseReport />
+      <TripExpenseReport />
     </ProtectedRoute>,
   },
+  {
+    path: '*',
+    element: <PageNotFound />,
+  }
 ]);
 
 const root = ReactDOM.createRoot(document.getElementById('root'));

@@ -154,7 +154,7 @@ const TripDetailsPage = () => {
 
     return (
         <div style={{ backgroundColor: '#f8f9fa', minHeight: '100vh' }}>
-            <FairShareNavbar user={user} onLogout={handleLogout} />
+            <FairShareNavbar user={user} handleLogout={handleLogout} />
 
             <Container className="py-4">
                 <Button variant="link" onClick={() => navigate(-1)} className="text-decoration-none text-muted mb-3 p-0 small">

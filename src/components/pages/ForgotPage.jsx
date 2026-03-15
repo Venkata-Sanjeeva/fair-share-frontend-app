@@ -68,6 +68,7 @@ const ForgotPage = () => {
                                         placeholder="Email Address"
                                         required
                                         onChange={(e) => setEmail(e.target.value)}
+                                        name='email'
                                     />
                                 </Form.Group>
                                 <Button variant="primary" type="submit" className="w-100 btn-primary-grad py-2 mb-3" disabled={isSubmitting}>
