@@ -19,7 +19,7 @@ const FairShareHome = () => {
         setTimeout(() => setIsLoading(false), 1000); // Small delay for effect
     }, []);
 
-    const handleLogout = () => {
+    const handleLogoutFun = () => {
         localStorage.removeItem('fs_user');
         setUser(null);
         navigate('/home'); // Send them to landing
@@ -29,7 +29,7 @@ const FairShareHome = () => {
 
     return (
         <div className="fairshare-app">
-            <FairShareNavbar user={user} handleLogout={handleLogout} />
+            <FairShareNavbar user={user} handleLogout={handleLogoutFun} />
 
             {user && (<Dashboard user={user} />) }
         </div>

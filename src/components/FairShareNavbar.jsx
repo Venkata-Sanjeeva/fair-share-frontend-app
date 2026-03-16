@@ -10,7 +10,6 @@ const FairShareNavbar = ({ user = null, handleLogout = null }) => {
         user = JSON.parse(localStorage.getItem("fs_user"));
     }
     const navigate = useNavigate();
-    console.log("FairShareNavbar User Prop:", user);
 
     return (
         <Navbar 
@@ -60,7 +59,10 @@ const FairShareNavbar = ({ user = null, handleLogout = null }) => {
                                     variant="outline-danger" 
                                     size="sm" 
                                     className="rounded-3 px-3 fw-bold border-2"
-                                    onClick={handleLogout}
+                                    onClick={handleLogout ? handleLogout : () => {
+                                        localStorage.removeItem('fs_user');
+                                        navigate('/home');
+                                    }}
                                     style={{ fontSize: '0.85rem' }}
                                 >
                                     <i className="bi bi-box-arrow-right me-1"></i> LOGOUT
