@@ -38,7 +38,7 @@ const LandingPage = () => {
                         className="px-5 py-3 fw-bold"
                         onClick={handleRouteToSignup}
                     >
-                        Start Your First Trip
+                        {!user ? "Start Your First Trip" : "Go to Dashboard"}
                     </Button>
                 </Container>
             </div>
