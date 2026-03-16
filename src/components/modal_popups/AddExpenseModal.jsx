@@ -13,9 +13,9 @@ const AddExpenseModal = ({ show, onHide, trip, token, onExpenseAdded, editData, 
     useEffect(() => {
         if (show) {
             setAmount(editData?.totalAmount || 0);
-            setInvolvedMembers(editData ? editData.splits.map(s => s.participant) : trip.participants);
+            setInvolvedMembers(editData ? editData.splits.map(s => s.participant) : trip?.participants);
         }
-    }, [show, editData, trip.participants]);
+    }, [show, editData, trip?.participants]);
 
     const handleCheckboxChange = (member) => {
         setInvolvedMembers(prev =>
@@ -103,9 +103,9 @@ const AddExpenseModal = ({ show, onHide, trip, token, onExpenseAdded, editData, 
                         <Form.Select
                             name="paidBy"
                             className="rounded-3"
-                            defaultValue={editData?.paidBy?.participantUID || trip.participants[0]?.participantUID}
+                            defaultValue={editData?.paidBy?.participantUID || trip?.participants[0]?.participantUID}
                         >
-                            {trip.participants.map((person, idx) => (
+                            {trip?.participants.map((person, idx) => (
                                 <option key={idx} value={person?.participantUID}>
                                     {person?.participantName}
                                 </option>
@@ -120,7 +120,7 @@ const AddExpenseModal = ({ show, onHide, trip, token, onExpenseAdded, editData, 
                         </Form.Label>
 
                         <div className="d-flex flex-wrap gap-2 mb-3">
-                            {trip.participants.map((member, idx) => {
+                            {trip?.participants.map((member, idx) => {
                                 const isSelected = involvedMembers.find(parti => parti?.participantUID === member?.participantUID);
                                 return (
                                     <div key={idx}>
