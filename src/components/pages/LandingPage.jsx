@@ -10,6 +10,14 @@ const LandingPage = () => {
         navigate("/dashboard");
     }
 
+    const handleRouteToSignup = () => {
+        if (!user) {
+            navigate('/register');
+        } else {
+            navigate('/dashboard');
+        }
+    }
+
     return (
         <div className="fairshare-app">
             <FairShareNavbar user={user} handleLogout={null} />
@@ -28,7 +36,7 @@ const LandingPage = () => {
                         variant="light"
                         size="lg"
                         className="px-5 py-3 fw-bold"
-                        onClick={() => navigate('/register')}
+                        onClick={handleRouteToSignup}
                     >
                         Start Your First Trip
                     </Button>
