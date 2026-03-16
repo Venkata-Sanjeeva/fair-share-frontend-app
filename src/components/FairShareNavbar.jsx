@@ -4,7 +4,13 @@ import { useNavigate } from 'react-router-dom';
 import '../styles/fairShareNavbar.css';
 
 const FairShareNavbar = ({ user = null, handleLogout = null }) => {
+    const isString = (val) => typeof val === 'string' || val instanceof String;
+
+    if (isString(user)) {
+        user = JSON.parse(localStorage.getItem("fs_user"));
+    }
     const navigate = useNavigate();
+    console.log("FairShareNavbar User Prop:", user);
 
     return (
         <Navbar 
