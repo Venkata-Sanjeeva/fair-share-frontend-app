@@ -1,71 +1,57 @@
-# Getting Started with Create React App
+📦 FairShare | Full-Stack Trip Expense Tracker
+FairShare is a robust web application designed to simplify group finances. It allows users to create trips, manage participants, and track shared expenses with real-time split calculations. Built with a focus on high-performance backend logic and a modern, responsive UI.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+🚀 Features
+Trip Management: Create "Solo" or "Group" trips with dynamic status tracking (Created, Active, Completed).
 
-## Available Scripts
+Smart Ledger: A timeline-based expense history with custom CSS animations.
 
-In the project directory, you can run:
+Automated Splits: Real-time calculation of "Average per person" and total trip spend.
 
-### `npm start`
+Modern UI/UX: Features a "Status-Bar" style navigation, custom hover effects, and a theme engine that changes colors based on trip status.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Financial Security: Secure JWT-based authentication and transaction deduplication logic.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+PDF Reporting: (Optional) Generate billing summaries and expense reports.
 
-### `npm test`
+🛠️ Tech Stack
+Frontend: React.js, React-Bootstrap, Axios, CSS3 (Custom Animations)
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Backend: Java Spring Boot, Spring Security (JWT), Hibernate/JPA
 
-### `npm run build`
+Database: MySQL / PostgreSQL
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Tools: QR Code API, RESTful API Design
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+📸 Preview
+(Insert your LinkedIn screen recording or a high-res screenshot here)
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+⚙️ Installation & Setup
+Backend (Spring Boot)
+Navigate to the /backend directory.
 
-### `npm run eject`
+Update application.properties with your database credentials.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Run the application using Maven:
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Bash
+mvn spring-boot:run
+Frontend (React)
+Navigate to the /frontend directory.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Install dependencies:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Bash
+npm install
+Create a .env file and add: REACT_APP_API_URL=http://localhost:8080
 
-## Learn More
+Start the development server:
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Bash
+npm start
+🧠 Key Learnings
+Implemented Popper.js configurations for smooth, animated dropdown menus.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Managed complex Entity Relationships (One-to-Many) between Trips and Expenses.
 
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
-"# fair-share-frontend-app" 
+Built a Custom Theme Engine in React to provide visual feedback based on application state.
