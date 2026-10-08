@@ -30,11 +30,18 @@ const TripDetailsPage = () => {
 
     const [editingExpense, setEditingExpense] = useState(null);
 
+    const [borrowedAmounts, setBorrowedAmounts] = useState([]);
+    const [activeSettlementTab, setActiveSettlementTab] = useState("settlement");
+    const [expensesLoading, setExpensesLoading] = useState(false);
+    const [balancesLoading, setBalancesLoading] = useState(false);
+    const [borrowedAmountsLoading, setBorrowedAmountsLoading] = useState(false);
+
     const calculateBalance = (member) => {
         return member.amountPaidInTrip - member.shareAmount;
     };
 
     const fetchExpenses = async () => {
+        setExpensesLoading(true);
         try {
             const response = await axios.get(`${API_URL}/expenses/fetch/${tripUID}`, {
                 headers: { Authorization: `Bearer ${user.token}` }
@@ -46,7 +53,7 @@ const TripDetailsPage = () => {
         } catch (err) {
             console.error("Error fetching expenses", err);
         } finally {
-            setCompLoading(false);
+            setExpensesLoading(false);
         }
     };
 
@@ -70,20 +77,55 @@ const TripDetailsPage = () => {
     };
 
     const fetchBalances = async () => {
-        setCompLoading(true);
+        setBalancesLoading(true);
+
         try {
             const results = await axios.get(
                 `${API_URL}/expenses/${tripUID}/balances`,
-                { headers: { Authorization: `Bearer ${user.token}` } }
+                {
+                    headers: {
+                        Authorization: `Bearer ${user.token}`
+                    }
+                }
             );
 
             const data = results?.data?.data;
+
             setBalances(data);
 
         } catch (err) {
             console.error("Error fetching balances", err);
+
         } finally {
-            setCompLoading(false);
+            setBalancesLoading(false);
+        }
+    };
+
+    const fetchBorrowedAmountDetails = async () => {
+        setBorrowedAmountsLoading(true);
+
+        try {
+            const results = await axios.get(
+                `${API_URL}/expenses/getBorrowedAmountFromOthers/${tripUID}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${user.token}`
+                    }
+                }
+            );
+
+            const data = results?.data?.data;
+
+            setBorrowedAmounts(data);
+
+        } catch (err) {
+            console.error(
+                "Error fetching borrowed amount details...",
+                err
+            );
+
+        } finally {
+            setBorrowedAmountsLoading(false);
         }
     };
 
@@ -136,6 +178,7 @@ const TripDetailsPage = () => {
 
         fetchTripDetails();
         fetchBalances();
+        fetchBorrowedAmountDetails();
 
         // 3. Add dependencies here to satisfy ESLint and ensure data stays fresh
     }, [tripUID, user, navigate]);
@@ -221,7 +264,7 @@ const TripDetailsPage = () => {
                                     </div>
                                 </div>
 
-                                {compLoading ? <ComponentLoader message='Expenses are loading...' /> :
+                                {expensesLoading ? <ComponentLoader message='Expenses are loading...' /> :
                                     <div className="expense-list-container" style={{ maxHeight: '56vh', overflowY: 'auto', paddingRight: '10px' }}>
                                         {expenses.length === 0 ? (
                                             <div className="p-5 bg-white text-center rounded-4 border-0 shadow-sm">
@@ -314,97 +357,340 @@ const TripDetailsPage = () => {
                                 }
                             </Col>
 
-                            {/* SIDEBAR*/}
+                            {/* SIDEBAR */}
                             <Col lg={5}>
-                                {/* TRIP SETTLEMENT OVERVIEW */}
-                                <div className="d-flex justify-content-between align-items-center mb-2">
-                                    <div>
-                                        <h5 className="fw-bold mb-0" style={{ color: '#2d3436' }}>
+
+                                {/* TOGGLE HEADER */}
+                                <Card className="border-0 shadow-sm rounded-4 bg-white overflow-hidden">
+
+                                    {/* Toggle Buttons */}
+                                    <div
+                                        className="d-flex p-2"
+                                        style={{
+                                            background: "#f8f9fa",
+                                            borderBottom: "1px solid #e9ecef"
+                                        }}
+                                    >
+
+                                        <button
+                                            type="button"
+                                            className="flex-fill border-0 py-2 px-3 rounded-3 fw-semibold"
+                                            onClick={() => setActiveSettlementTab("settlement")}
+                                            style={{
+                                                background:
+                                                    activeSettlementTab === "settlement"
+                                                        ? theme.gradient
+                                                        : "transparent",
+                                                color:
+                                                    activeSettlementTab === "settlement"
+                                                        ? "#fff"
+                                                        : "#6c757d",
+                                                transition: "all 0.2s ease"
+                                            }}
+                                        >
+                                            <i className="bi bi-arrow-left-right me-2"></i>
                                             Trip Settlement
-                                        </h5>
-                                        <small className="text-muted">
-                                            Overview of member balances
-                                        </small>
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            className="flex-fill border-0 py-2 px-3 rounded-3 fw-semibold"
+                                            onClick={() => setActiveSettlementTab("borrowed")}
+                                            style={{
+                                                background:
+                                                    activeSettlementTab === "borrowed"
+                                                        ? theme.gradient
+                                                        : "transparent",
+                                                color:
+                                                    activeSettlementTab === "borrowed"
+                                                        ? "#fff"
+                                                        : "#6c757d",
+                                                transition: "all 0.2s ease"
+                                            }}
+                                        >
+                                            <i className="bi bi-cash-stack me-2"></i>
+                                            Borrowed Amounts
+                                        </button>
+
                                     </div>
-                                </div>
 
-                                <Card className="border-0 shadow-sm rounded-4 p-4 bg-white" style={{ maxHeight: '56vh', overflowY: 'auto', paddingRight: '10px' }}>
 
-                                    {compLoading ? <ComponentLoader message='Recalculating balances...'/> : 
-                                        balances.map((member, index) => {
+                                    {/* CONTENT */}
+                                    <div
+                                        style={{
+                                            maxHeight: "56vh",
+                                            overflowY: "auto"
+                                        }}
+                                    >
 
-                                        const balance = calculateBalance(member);
-                                        const isPositive = balance >= 0;
+                                        {/* ============================= */}
+                                        {/* TRIP SETTLEMENT */}
+                                        {/* ============================= */}
 
-                                        return (
-                                            <div key={index} className="mb-3 pb-2 border-bottom">
+                                        {activeSettlementTab === "settlement" && (
 
-                                                {/* MEMBER SUMMARY */}
-                                                <div className="d-flex justify-content-between align-items-center">
+                                            <div className="p-4">
 
-                                                    <div>
-                                                        <div className="fw-bold">
-                                                            <i className="bi bi-person-circle me-1 text-primary"></i>
-                                                            {member.participant.participantName}
-                                                        </div>
+                                                <div className="mb-3">
+                                                    <h5
+                                                        className="fw-bold mb-0"
+                                                        style={{ color: "#2d3436" }}
+                                                    >
+                                                        Trip Settlement
+                                                    </h5>
 
-                                                        <div className="small text-muted">
-                                                            Paid ₹{member.amountPaidInTrip.toFixed(2)} • Share ₹{member.shareAmount.toFixed(2)}
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="text-end">
-
-                                                        <div className={`fw-bold ${isPositive ? "text-success" : "text-danger"}`}>
-                                                            {isPositive
-                                                                ? `+ ₹${balance.toFixed(2)}`
-                                                                : `- ₹${Math.abs(balance).toFixed(2)}`
-                                                            }
-                                                        </div>
-
-                                                        <button
-                                                            className="btn btn-link p-0 small"
-                                                            onClick={() =>
-                                                                setExpandedMember(
-                                                                    expandedMember === member.participant.participantUID
-                                                                        ? null
-                                                                        : member.participant.participantUID
-                                                                )
-                                                            }
-                                                        >
-                                                            {expandedMember === member.participant.participantUID
-                                                                ? "Hide Details"
-                                                                : "View Details"}
-                                                        </button>
-
-                                                    </div>
-
+                                                    <small className="text-muted">
+                                                        Overview of member balances
+                                                    </small>
                                                 </div>
 
-                                                {/* EXPENSE BREAKDOWN */}
-                                                {expandedMember === member.participant.participantUID && (
-                                                    <div className="mt-2 ps-2">
 
-                                                        {member.listExpensesToBePaid.map((exp, idx) => (
+                                                {balancesLoading ? (
+
+                                                    <ComponentLoader message="Recalculating balances..." />
+
+                                                ) : (
+
+                                                    balances.map((member, index) => {
+
+                                                        const balance = calculateBalance(member);
+                                                        const isPositive = balance >= 0;
+
+                                                        return (
                                                             <div
-                                                                key={idx}
-                                                                className="d-flex justify-content-between small text-muted mb-1"
+                                                                key={index}
+                                                                className="mb-3 pb-2 border-bottom"
                                                             >
-                                                                <span>{exp.expenseDesc.replaceAll("_", " ").substring(0, 25)}...</span>
 
-                                                                <span className="fw-bold text-dark">
-                                                                    ₹{exp.amountToBePaid.toFixed(2)}
-                                                                </span>
+                                                                {/* MEMBER SUMMARY */}
+                                                                <div className="d-flex justify-content-between align-items-center">
+
+                                                                    <div>
+
+                                                                        <div className="fw-bold">
+                                                                            <i className="bi bi-person-circle me-1 text-primary"></i>
+
+                                                                            {member.participant.participantName}
+                                                                        </div>
+
+                                                                        <div className="small text-muted">
+                                                                            Paid ₹
+                                                                            {member.amountPaidInTrip.toFixed(2)}
+                                                                            {" • "}
+                                                                            Share ₹
+                                                                            {member.shareAmount.toFixed(2)}
+                                                                        </div>
+
+                                                                    </div>
+
+
+                                                                    <div className="text-end">
+
+                                                                        <div
+                                                                            className={`fw-bold ${isPositive
+                                                                                ? "text-success"
+                                                                                : "text-danger"
+                                                                                }`}
+                                                                        >
+                                                                            {isPositive
+                                                                                ? `+ ₹${balance.toFixed(2)}`
+                                                                                : `- ₹${Math.abs(balance).toFixed(2)}`
+                                                                            }
+                                                                        </div>
+
+                                                                        <button
+                                                                            className="btn btn-link p-0 small"
+                                                                            onClick={() =>
+                                                                                setExpandedMember(
+                                                                                    expandedMember ===
+                                                                                        member.participant.participantUID
+                                                                                        ? null
+                                                                                        : member.participant.participantUID
+                                                                                )
+                                                                            }
+                                                                        >
+                                                                            {expandedMember ===
+                                                                                member.participant.participantUID
+                                                                                ? "Hide Details"
+                                                                                : "View Details"}
+                                                                        </button>
+
+                                                                    </div>
+
+                                                                </div>
+
+
+                                                                {/* EXPENSE BREAKDOWN */}
+                                                                {expandedMember ===
+                                                                    member.participant.participantUID && (
+
+                                                                        <div className="mt-2 ps-2">
+
+                                                                            {member.listExpensesToBePaid.map(
+                                                                                (exp, idx) => (
+
+                                                                                    <div
+                                                                                        key={idx}
+                                                                                        className="d-flex justify-content-between small text-muted mb-1"
+                                                                                    >
+
+                                                                                        <span>
+                                                                                            {exp.expenseDesc
+                                                                                                .replaceAll("_", " ")
+                                                                                                .substring(0, 25)}
+                                                                                            ...
+                                                                                        </span>
+
+                                                                                        <span className="fw-bold text-dark">
+                                                                                            ₹
+                                                                                            {exp.amountToBePaid.toFixed(2)}
+                                                                                        </span>
+
+                                                                                    </div>
+
+                                                                                )
+                                                                            )}
+
+                                                                        </div>
+
+                                                                    )}
+
                                                             </div>
-                                                        ))}
+                                                        );
 
-                                                    </div>
+                                                    })
+
                                                 )}
 
                                             </div>
-                                        );
-                                    })}
+
+                                        )}
+
+
+                                        {/* ============================= */}
+                                        {/* BORROWED AMOUNTS */}
+                                        {/* ============================= */}
+
+                                        {activeSettlementTab === "borrowed" && (
+
+                                            <div className="p-4">
+
+                                                <div className="mb-3">
+                                                    <h5
+                                                        className="fw-bold mb-0"
+                                                        style={{ color: "#2d3436" }}
+                                                    >
+                                                        Borrowed Amounts
+                                                    </h5>
+
+                                                    <small className="text-muted">
+                                                        Amount borrowed from other participants
+                                                    </small>
+                                                </div>
+
+
+                                                {borrowedAmountsLoading ? (
+
+                                                    <ComponentLoader message="Calculating borrowed amounts..." />
+
+                                                ) : (
+
+                                                    borrowedAmounts.map((participant, index) => (
+
+                                                        <div
+                                                            key={participant.participantUID}
+                                                            className={
+                                                                index !== borrowedAmounts.length - 1
+                                                                    ? "mb-3 pb-3 border-bottom"
+                                                                    : ""
+                                                            }
+                                                        >
+
+                                                            {/* PARTICIPANT */}
+                                                            <div className="d-flex justify-content-between align-items-center mb-2">
+
+                                                                <div className="fw-bold">
+                                                                    <i className="bi bi-person-circle me-1 text-primary"></i>
+
+                                                                    {participant.participantName}
+                                                                </div>
+
+                                                                <div className="text-end">
+
+                                                                    <small className="text-muted d-block">
+                                                                        Total Borrowed
+                                                                    </small>
+
+                                                                    <span
+                                                                        className="fw-bold"
+                                                                        style={{
+                                                                            color: theme.color
+                                                                        }}
+                                                                    >
+                                                                        ₹
+                                                                        {participant.totalBorrowedAmt.toFixed(2)}
+                                                                    </span>
+
+                                                                </div>
+
+                                                            </div>
+
+
+                                                            {/* BORROWED FROM */}
+                                                            <div
+                                                                className="rounded-3"
+                                                                style={{
+                                                                    background: "#f8f9fa"
+                                                                }}
+                                                            >
+
+                                                                {participant
+                                                                    .listOfParticipantsAmountBorrowedFrom
+                                                                    ?.map((borrowedFrom, idx) => (
+
+                                                                        <div
+                                                                            key={borrowedFrom.participantUID}
+                                                                            className="d-flex justify-content-between px-3 py-2"
+                                                                            style={{
+                                                                                borderBottom:
+                                                                                    idx !==
+                                                                                        participant
+                                                                                            .listOfParticipantsAmountBorrowedFrom
+                                                                                            .length - 1
+                                                                                        ? "1px solid #e9ecef"
+                                                                                        : "none"
+                                                                            }}
+                                                                        >
+
+                                                                            <span className="small text-muted">
+                                                                                {borrowedFrom.participantName}
+                                                                            </span>
+
+                                                                            <span className="small fw-semibold">
+                                                                                ₹
+                                                                                {borrowedFrom.amountBorrowed.toFixed(2)}
+                                                                            </span>
+
+                                                                        </div>
+
+                                                                    ))}
+
+                                                            </div>
+
+                                                        </div>
+
+                                                    ))
+
+                                                )}
+
+                                            </div>
+
+                                        )}
+
+                                    </div>
+
                                 </Card>
+
                             </Col>
                         </Row>
                     </>

@@ -16,6 +16,7 @@ const TripExpenseReport = () => {
     const [report, setReport] = useState(null);
     const [notes, setNotes] = useState("");
     const [route, setRoute] = useState("");
+    const [borrowedAmounts, setBorrowedAmounts] = useState([]);
 
     const [images, setImages] = useState([]);
     const navigate = useNavigate();
@@ -40,9 +41,30 @@ const TripExpenseReport = () => {
         }
     };
 
+    const fetchBorrowedAmountDetails = async () => {
+        try {
+            const response = await axios.get(
+                `${API_URL}/expenses/getBorrowedAmountFromOthers/${tripUID}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${user.token}`
+                    }
+                }
+            );
+
+            const data = response?.data?.data || [];
+
+            setBorrowedAmounts(data);
+
+        } catch (err) {
+            console.error("Error fetching borrowed amount details", err);
+        }
+    };
+
     useEffect(() => {
         fetchReport();
-    }, []);
+        fetchBorrowedAmountDetails();
+    }, [tripUID]);
 
     const addImage = (e) => {
 
@@ -64,23 +86,90 @@ const TripExpenseReport = () => {
 
         const element = document.getElementById("tripReport");
 
+        if (!element) {
+            console.error("Trip report element not found.");
+            return;
+        }
+
         const opt = {
-            margin: 10,
-            filename: `${report.tripName}_Travel_Report_By_Fair_Share.pdf`,
-            image: { type: "jpeg", quality: 0.98 },
-            html2canvas: {
-                scale: 3,
-                useCORS: true,
-                scrollY: 0
+
+            margin: [12, 10, 15, 10],
+
+            filename:
+                `${report.tripName}_Travel_Report_By_Fair_Share.pdf`,
+
+            image: {
+                type: "jpeg",
+                quality: 0.98
             },
+
+            html2canvas: {
+                scale: 2,
+                useCORS: true,
+                scrollY: 0,
+                backgroundColor: "#ffffff"
+            },
+
             jsPDF: {
                 unit: "mm",
                 format: "a4",
                 orientation: "portrait"
+            },
+
+            pagebreak: {
+                mode: ["css", "legacy"],
+                avoid: [
+                    ".pdf-section",
+                    ".participant-card",
+                    ".expense-section",
+                    ".pdf-table-row",
+                    ".summary-card",
+                    ".travel-section",
+                    ".report-section-header"
+                ]
             }
+
         };
 
-        html2pdf().set(opt).from(element).save();
+        html2pdf()
+            .set(opt)
+            .from(element)
+            .save();
+    };
+
+    const getSettlementDetails = (participantUID) => {
+        const participantReport = report.tripParticipants.find(
+            p => p.participant.participantUID === participantUID
+        );
+
+        const borrowedByOthers = borrowedAmounts.reduce(
+            (total, borrower) => {
+                const borrowedFromParticipant =
+                    borrower.listOfParticipantsAmountBorrowedFrom?.find(
+                        item => item.participantUID === participantUID
+                    );
+
+                return total + (borrowedFromParticipant?.amountBorrowed || 0);
+            },
+            0
+        );
+
+        const borrowedAmount =
+            borrowedAmounts.find(
+                p => p.participantUID === participantUID
+            )?.totalBorrowedAmt || 0;
+
+        const finalAmount =
+            borrowedByOthers - borrowedAmount;
+
+        return {
+            participantName: participantReport?.participant.participantName,
+            amountSpent: participantReport?.amountPaidInTrip || 0,
+            shareAmount: participantReport?.shareAmount || 0,
+            borrowedByOthers,
+            borrowedAmount,
+            finalAmount
+        };
     };
 
     const handleLogout = () => {
@@ -90,7 +179,7 @@ const TripExpenseReport = () => {
 
     return (
         <>
-            <FairShareNavbar user={user} handleLogout={handleLogout}/>
+            <FairShareNavbar user={user} handleLogout={handleLogout} />
             {!report ? <ComponentLoader message="Loading Trip Expense Report..." /> :
                 (<Container className="py-4">
                     <Button variant="link" onClick={() => navigate(-1)} className="text-decoration-none text-muted mb-3 p-0 small">
@@ -152,7 +241,7 @@ const TripExpenseReport = () => {
                             <hr />
 
                             {/* Participant Settlement Summary */}
-                            <div className="report-section">
+                            <div className="report-section pdf-section">
 
                                 <div className="report-section-header">
                                     <h3>Settlement Summary</h3>
@@ -184,8 +273,81 @@ const TripExpenseReport = () => {
 
                             </div>
 
+                            {/* Borrowed Amount Details */}
+                            <div className="report-section pdf-section">
+
+                                <div className="report-section-header">
+                                    <h3>Borrowed Amount Details</h3>
+                                    <p>
+                                        Amount borrowed by each participant from other participants
+                                    </p>
+                                </div>
+
+                                <Table bordered size="sm" className="borrowed-table">
+
+                                    <thead>
+                                        <tr>
+                                            <th>Participant</th>
+                                            <th>Borrowed From</th>
+                                            <th className="text-end">Amount Borrowed</th>
+                                            <th className="text-end">Total Borrowed</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+
+                                        {borrowedAmounts.map((participant) => (
+                                            <React.Fragment key={participant.participantUID}>
+                                                {participant.listOfParticipantsAmountBorrowedFrom?.map(
+                                                    (borrowedFrom, index) => {
+
+                                                        const isLastRow =
+                                                            index ===
+                                                            participant.listOfParticipantsAmountBorrowedFrom.length - 1;
+
+                                                        return (
+                                                            <tr
+                                                                key={borrowedFrom.participantUID}
+                                                                className={
+                                                                    isLastRow
+                                                                        ? "pdf-table-row participant-last-row"
+                                                                        : "pdf-table-row"
+                                                                }
+                                                            >
+                                                                <td>
+                                                                    {index === 0
+                                                                        ? participant.participantName
+                                                                        : ""}
+                                                                </td>
+
+                                                                <td>
+                                                                    {borrowedFrom.participantName}
+                                                                </td>
+
+                                                                <td className="text-end">
+                                                                    ₹{borrowedFrom.amountBorrowed.toFixed(2)}
+                                                                </td>
+
+                                                                <td className="text-end fw-bold">
+                                                                    {index === 0
+                                                                        ? `₹${participant.totalBorrowedAmt.toFixed(2)}`
+                                                                        : ""}
+                                                                </td>
+                                                            </tr>
+                                                        );
+                                                    }
+                                                )}
+                                            </React.Fragment>
+                                        ))}
+
+                                    </tbody>
+
+                                </Table>
+
+                            </div>
+
                             {/* Expense Split Per Person */}
-                            <div className="report-section">
+                            <div className="report-section pdf-section">
 
                                 <div className="report-section-header">
                                     <h3>Expense Breakdown</h3>
@@ -211,11 +373,24 @@ const TripExpenseReport = () => {
 
                                             <tbody>
                                                 {p.listExpensesToBePaid.map((e) => (
-                                                    <tr key={e.expenseUID}>
-                                                        <td>{e.expenseDesc.replaceAll("_", " ")}</td>
-                                                        <td>₹{e.totalExpenseAmount.toFixed(2)}</td>
-                                                        <td>₹{e.amountToBePaid.toFixed(2)}</td>
+
+                                                    <tr
+                                                        key={e.expenseUID}
+                                                        className="pdf-table-row"
+                                                    >
+                                                        <td>
+                                                            {e.expenseDesc.replaceAll("_", " ")}
+                                                        </td>
+
+                                                        <td>
+                                                            ₹{e.totalExpenseAmount.toFixed(2)}
+                                                        </td>
+
+                                                        <td>
+                                                            ₹{e.amountToBePaid.toFixed(2)}
+                                                        </td>
                                                     </tr>
+
                                                 ))}
                                             </tbody>
 
@@ -225,6 +400,88 @@ const TripExpenseReport = () => {
                                 ))}
 
                             </div>
+
+                            <div className="report-section pdf-section settlement-explanation-section">
+                                <div className="report-section-header">
+                                    <h3>Final Settlement Explanation</h3>
+                                    <p>
+                                        A simple breakdown showing how each participant's final
+                                        settlement amount is calculated.
+                                    </p>
+                                </div>
+
+                                {report.tripParticipants.map((p) => {
+                                    const details = getSettlementDetails(
+                                        p.participant.participantUID
+                                    );
+
+                                    return (
+                                        <div
+                                            className="settlement-explanation-card"
+                                            key={p.participant.participantUID}
+                                        >
+                                            <h4>{details.participantName}</h4>
+
+                                            <div className="settlement-line">
+                                                <span>
+                                                    People borrowed from {details.participantName} &nbsp;
+                                                </span>
+                                                <strong>
+                                                    ₹{details.borrowedByOthers.toFixed(2)}
+                                                </strong>
+                                            </div>
+
+                                            <div className="settlement-line">
+                                                <span>
+                                                    Amount {details.participantName} spent during the Trip &nbsp;
+                                                </span>
+                                                <strong>
+                                                    ₹{details.amountSpent.toFixed(2)}
+                                                </strong>
+                                            </div>
+
+                                            <div className="settlement-line">
+                                                <span>
+                                                    {details.participantName}'s share in the trip &nbsp;
+                                                </span>
+                                                <strong>
+                                                    ₹{details.shareAmount.toFixed(2)}
+                                                </strong>
+                                            </div>
+
+                                            <div className="settlement-line">
+                                                <span>
+                                                    {details.participantName} borrowed amount &nbsp;
+                                                </span>
+                                                <strong>
+                                                    ₹{details.borrowedAmount.toFixed(2)}
+                                                </strong>
+                                            </div>
+
+                                            <div className="settlement-calculation">
+                                                <span>
+                                                    Final Settlement &nbsp;
+                                                </span>
+
+                                                <strong
+                                                    className={
+                                                        details.finalAmount >= 0
+                                                            ? "balance-positive"
+                                                            : "balance-negative"
+                                                    }
+                                                >
+                                                    {details.finalAmount >= 0
+                                                        ? `Gets ₹${details.finalAmount.toFixed(2)}`
+                                                        : `Owes ₹${Math.abs(details.finalAmount).toFixed(2)}`
+                                                    }
+                                                </strong>
+                                                <hr />
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+
                             {/* Route Section */}
 
                             <div className="travel-section">

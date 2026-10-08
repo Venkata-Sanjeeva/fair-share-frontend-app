@@ -134,3 +134,72 @@
     color: #888;
     margin-top: 40px;
 }
+
+/* =========================================================
+   PDF PAGE BREAK CONTROL
+   ========================================================= */
+
+.pdf-section {
+    page-break-inside: avoid;
+    break-inside: avoid;
+}
+
+.report-section-header {
+    page-break-inside: avoid;
+    break-inside: avoid;
+}
+
+.summary-card {
+    page-break-inside: avoid;
+    break-inside: avoid;
+}
+
+.participant-card {
+    page-break-inside: avoid;
+    break-inside: avoid;
+}
+
+.expense-section {
+    page-break-inside: avoid;
+    break-inside: avoid;
+}
+
+.travel-section {
+    page-break-inside: avoid;
+    break-inside: avoid;
+}
+
+
+/* Prevent individual table rows from being split */
+
+.pdf-table-row {
+    page-break-inside: avoid;
+    break-inside: avoid;
+}
+
+.borrowed-table tr {
+    page-break-inside: avoid;
+    break-inside: avoid;
+}
+
+
+/* Keep table headers with the table */
+
+.borrowed-table thead {
+    display: table-header-group;
+}
+
+.expense-section thead {
+    display: table-header-group;
+}
+
+
+/* Give sections some breathing room */
+
+.pdf-section {
+    margin-bottom: 20px;
+}
+
+.participant-last-row td {
+    border-bottom: 2px solid #555 !important;
+}
